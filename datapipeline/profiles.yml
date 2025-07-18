@@ -1,0 +1,24 @@
+datapipeline:
+  outputs:
+    pg:
+      type: postgres
+      dbname: "{{ env_var('POSTGRES_DATABASE') }}"
+      host: "{{ env_var('POSTGRES_ENDPOINT') }}"
+      user: "{{ env_var('POSTGRES_USERNAME') }}"
+      pass: "{{ env_var('POSTGRES_PASSWORD') }}"
+      port: "{{ env_var('POSTGRES_PORT','5432') | int }}"
+      schema: "public"
+      threads: 1
+    bq:
+      type: bigquery
+      method: oauth
+      project: "{{ env_var('BQ_PROJECT_ID') }}"
+      dataset: "{{ env_var('BQ_DATASET') }}"
+      threads: 4
+      location: "{{ env_var('GCP_REGION', 'australia-southeast1') }}"
+    duckdb:
+      type: duckdb
+      path: "{{ env_var('DUCKDB_FILE') }}"
+      extensions:
+        - json
+  target: pg

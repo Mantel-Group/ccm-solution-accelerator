@@ -1,0 +1,77 @@
+module "azure_example" {
+  source                       = "../../azure"
+  tenant                       = "testing3"     # What do you want to call this grouping?  Tenant allows you to install multiple instances
+
+  # == azure specific information
+  azure_subscription_id              = "b04b9205-9a3c-4500-ad69-d0dbf5b3e97f"     # specify an existing subscription group
+  azure_resource_group_name          = "test-continuous-assurance-phil-massyn3"   # The name of the resource group to create
+#  location                    = "australiaeast"
+
+#  azure_vnet_cidr           = ["10.0.0.0/16"]     # What CIDR range should the Vnet use?
+#  azure_subnet_container_cidr = ["10.0.0.0/21"]     # What CIDR range should the container subnet use?
+#  azure_subnet_database_cidr  = ["10.0.8.0/24"]     # What CIDR range should the database subnet use?
+  
+#  db_name                      = "continuous_assurance"  # The name of the database you'd like to use
+#  db_username                  = "ContinuousAssurance"
+#  db_instance_size             = "B_Standard_B1ms"
+#  db_version                   = "16"
+#  db_storage                   = 32
+#  db_public_facing             = false                   # If you did want the db to be public, set it here
+#  db_cidr_inbound_allow        = [ ]                     # Specify the CIDR ranges that you'd like to allow public access from for the database
+
+# dashboard_cidr_inbound_allow = [ "0.0.0.0/0" ]
+# dashboard_username    = "admin"
+# dashboard_password    = "s3cretW0rd"
+
+  tags = {
+    Project   = "Continuous Controls Monitoring Starter Template"
+    owner     = "phil.massyn@mantelgroup.com.au"
+    client    = "internal"
+    domain    = "cyber"
+  }
+
+  secrets = {
+    FALCON_CLIENT_ID    = "CHANGE ME"
+    FALCON_SECRET       = "CHANGE ME"
+    TENABLE_ACCESS_KEY  = "CHANGE ME"
+    TENABLE_SECRET_KEY  = "CHANGE ME"
+    KNOWBE4_TOKEN       = "CHANGE ME"
+    OKTA_TOKEN          = "CHANGE ME"
+    OKTA_DOMAIN         = "CHANGE ME"
+    AZURE_TENANT_ID     = "CHANGE ME"
+    AZURE_CLIENT_ID     = "CHANGE ME"
+    AZURE_CLIENT_SECRET = "CHANGE ME"
+    DOMAINS             = "CHANGE ME"
+  }
+}
+
+# ==== important outputs to return
+
+output "database_server_fqdn" {
+  description = "The FQDN of the PostgreSQL Flexible Server"
+  value       = module.azure_example.database_server_fqdn
+}
+
+output "database_username" {
+  description = "The Database username"
+  value       = module.azure_example.database_username
+}
+
+output "database" {
+  description = "The Postgres Database name"
+  value       = module.azure_example.database
+}
+
+output "dashboard_url" {
+  description = "Application endpoint FQDNs"
+  value       = module.azure_example.dashboard_url
+}
+
+output "collector_job_trigger_command" {
+  value       = module.azure_example.collector_job_trigger_command
+  description = "Azure CLI command to manually trigger the collector job"
+}
+output "datapipeline_job_trigger_command" {
+  value       = module.azure_example.datapipeline_job_trigger_command
+  description = "Azure CLI command to manually trigger the datapipeline job"
+}

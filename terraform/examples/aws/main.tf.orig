@@ -1,0 +1,70 @@
+module "continuous_assurance" {
+  source = "../../aws"
+  tenant                       = "testing"     # What do you want to call this grouping?  Tenant allows you to install multiple instances
+
+  # aws specific information
+# region = "ap-southeast-2"
+
+#  db_name                      = "continuous_assurance"  # The name of the database you'd like to use
+#  db_username                  = "ContinuousAssurance"
+# db_instance_size = "db.t4g.micro"
+  aws_rds_subnet_ids = [ "subnet-068e571950b9b9ab9", "subnet-0d205cf3de25261bc" ]
+  aws_container_subnets = [ "subnet-068e571950b9b9ab9", "subnet-0d205cf3de25261bc" ]
+  aws_vpc_id = "vpc-00b5f32fbcc2a6252"
+
+# cron_schedule = "22 * * * *"   # the time when the collector job should kick off
+  
+#  db_public_facing = false
+#  db_cidr_inbound_allow = [ "0.0.0.0/0" ]
+#  db_version                   = "17.4"
+
+# dashboard_cidr_inbound_allow = [ "0.0.0.0/0" ]
+# dashboard_username    = "admin"
+# dashboard_password    = "s3cretW0rd"
+
+  secrets = {
+    FALCON_CLIENT_ID    = "CHANGE ME"
+    FALCON_SECRET       = "CHANGE ME"
+    TENABLE_ACCESS_KEY  = "CHANGE ME"
+    TENABLE_SECRET_KEY  = "CHANGE ME"
+    KNOWBE4_TOKEN       = "CHANGE ME"
+    OKTA_TOKEN          = "CHANGE ME"
+    OKTA_DOMAIN         = "CHANGE ME"
+    AZURE_TENANT_ID     = "CHANGE ME"
+    AZURE_CLIENT_ID     = "CHANGE ME"
+    AZURE_CLIENT_SECRET = "CHANGE ME"
+    DOMAINS             = "CHANGE ME"
+  }
+}
+
+
+# ==== important outputs to return
+
+output "database_server_fqdn" {
+  description = "The FQDN of the PostgreSQL Server"
+  value       = module.continuous_assurance.database_server_fqdn
+}
+
+output "database_username" {
+  description = "The Database username"
+  value       = module.continuous_assurance.database_username
+}
+
+output "database" {
+  description = "The Postgres Database name"
+  value       = module.continuous_assurance.database
+}
+
+output "dashboard_url" {
+  description = "Dashboard URL"
+  value       = module.continuous_assurance.dashboard_url
+}
+
+output "collector_job_trigger_command" {
+  value       = module.continuous_assurance.collector_job_trigger_command
+  description = "AWS CLI command to manually trigger the collector job"
+}
+output "datapipeline_job_trigger_command" {
+  value       = module.continuous_assurance.datapipeline_job_trigger_command
+  description = "AWS CLI command to manually trigger the datapipeline job"
+}

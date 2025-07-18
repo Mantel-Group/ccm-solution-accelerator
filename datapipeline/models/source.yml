@@ -1,0 +1,17 @@
+version: 2
+sources:
+  - name: source
+    tables:
+      - name: azure_entra_users
+      - name: azure_entra_users_signin
+      - name: azure_audit_logs
+      - name: crowdstrike_hosts
+      - name: crowdstrike_zero_trust_assessment
+      - name: crowdstrike_zero_trust_assessment_items
+      - name: crowdstrike_vulnerabilities
+      - name: crowdstrike_vulnerabilities_remediation
+      - name: domain_scan_results
+      - name: okta_users
+      - name: knowbe4_enrollments
+      - name: tenable_vulnerabilities
+      - name: tenable_assets

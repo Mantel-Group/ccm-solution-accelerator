@@ -1,0 +1,7 @@
+pip
+python-dotenv
+dash
+pandas
+sqlalchemy
+psycopg[binary]
+gunicorn

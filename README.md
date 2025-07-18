@@ -1,4 +1,4 @@
-# continuous-assurance-starter-template
+# Continuous Controls Monitoring Solution Accelerator
 
 ## What is the CCM Solution Accelerator?
 
@@ -15,6 +15,9 @@ Our Continuous Controls Monitoring (CCM) Dashboard provides a powerful, streamli
 
 By automating data collection, transformation, and reporting, our CCM Dashboard empowers executives and security teams with real-time visibility into their cyber security performance, facilitating informed decision-making and a stronger defense against evolving threats.
 
+> [!TIP]
+> Just want to do a quick test on your local machine to see what it's all about?  Look at our [quick start](docs/01-quickstart.md) guide!
+
 ## What do you get?
 
 * `collector` - the Docker instance to download source data
@@ -30,7 +33,6 @@ By automating data collection, transformation, and reporting, our CCM Dashboard 
 * Deploying to [Production](docs/04-production.md)
 * [Metrics Library](docs/metric_library.md)
 * [Attribution](docs/attribution.md)
-* [Use cases](docs/usecases.md)
 
 ## Supported database platforms
 

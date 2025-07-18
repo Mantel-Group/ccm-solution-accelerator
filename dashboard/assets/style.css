@@ -1,0 +1,243 @@
+/* Import professional fonts */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+:root {
+  --navbar-bg-color: #002A41;
+  --body-bg-color: #ffffff;
+  --card-bg-color: #ffffff;
+  --border-color: #e1e5e9;
+  --text-primary: #2c3e50;
+  --text-secondary: #6c757d;
+  --shadow-light: 0 2px 4px rgba(0,0,0,0.1);
+  --shadow-medium: 0 4px 8px rgba(0,0,0,0.15);
+  --border-radius: 8px;
+  --spacing-sm: 12px;
+  --spacing-md: 20px;
+  --spacing-lg: 32px;
+}
+
+/* Base typography */
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  color: var(--text-primary);
+  background-color: #f8f9fa;
+  line-height: 1.6;
+}
+
+/* Headings */
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: var(--spacing-md);
+}
+
+h1 {
+  font-size: 2.5rem;
+  font-weight: 700;
+}
+
+h2 {
+  font-size: 2rem;
+  color: var(--navbar-bg-color);
+  margin-bottom: var(--spacing-lg);
+}
+
+h5 {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: var(--spacing-sm);
+  color: var(--text-primary);
+}
+
+/* Navbar styling */
+.navbar {
+  background-color: var(--navbar-bg-color) !important;
+  box-shadow: var(--shadow-medium);
+  border-bottom: 3px solid #0066cc;
+}
+
+.navbar-brand {
+  font-weight: 600;
+  font-size: 1.1rem;
+}
+
+/* Main container */
+.container {
+  max-width: 1400px;
+}
+
+/* Card and border styling */
+.border {
+  border: 1px solid var(--border-color) !important;
+  border-radius: var(--border-radius);
+  margin-bottom: var(--spacing-md);
+  background-color: var(--card-bg-color);
+  box-shadow: var(--shadow-light);
+  transition: box-shadow 0.2s ease;
+}
+
+.border:hover {
+  box-shadow: var(--shadow-medium);
+}
+
+/* Filter sidebar */
+.filter-sidebar {
+  background-color: var(--card-bg-color);
+  padding: var(--spacing-md);
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow-light);
+  height: fit-content;
+  position: sticky;
+  top: 100px;
+}
+
+.filter-sidebar h5 {
+  color: var(--navbar-bg-color);
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-top: var(--spacing-md);
+  margin-bottom: var(--spacing-sm);
+}
+
+.filter-sidebar h5:first-child {
+  margin-top: 0;
+}
+
+/* Dropdown styling */
+.Select-control {
+  border: 1px solid var(--border-color) !important;
+  border-radius: 6px !important;
+  box-shadow: none !important;
+  font-size: 0.9rem;
+}
+
+.Select-control:hover {
+  border-color: #0066cc !important;
+}
+
+.Select-control.is-focused {
+  border-color: #0066cc !important;
+  box-shadow: 0 0 0 2px rgba(0, 102, 204, 0.1) !important;
+}
+
+/* Chart containers */
+.graph-container {
+  background-color: var(--card-bg-color);
+  border-radius: var(--border-radius);
+  padding: var(--spacing-md);
+  margin-bottom: var(--spacing-md);
+  box-shadow: var(--shadow-light);
+}
+
+/* Main chart styling */
+#graph-executive-overview {
+  background-color: transparent !important;
+}
+
+/* Sub-graphs */
+.sub-graph {
+  height: 400px;
+  background-color: var(--card-bg-color);
+  border-radius: var(--border-radius);
+  padding: var(--spacing-md);
+  margin-bottom: var(--spacing-md);
+  box-shadow: var(--shadow-light);
+}
+
+/* Row and column spacing */
+.row {
+  margin-left: -10px;
+  margin-right: -10px;
+}
+
+.row > [class*="col-"] {
+  padding-left: 10px;
+  padding-right: 10px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .filter-sidebar {
+    position: static;
+    margin-bottom: var(--spacing-md);
+  }
+  
+  h2 {
+    font-size: 1.5rem;
+  }
+  
+  .container {
+    padding-left: 15px;
+    padding-right: 15px;
+  }
+}
+
+/* Alert styling */
+.alert {
+  border-radius: var(--border-radius);
+  border: none;
+  font-weight: 500;
+}
+
+.alert-danger {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+
+.alert-success {
+  background-color: #d1edff;
+  color: #0c5460;
+}
+
+/* Plotly chart improvements */
+.js-plotly-plot .plotly .modebar {
+  background-color: transparent !important;
+}
+
+.js-plotly-plot .plotly .modebar-btn {
+  background-color: var(--card-bg-color) !important;
+  border: 1px solid var(--border-color) !important;
+  border-radius: 4px !important;
+  margin: 2px !important;
+}
+
+.js-plotly-plot .plotly .modebar-btn:hover {
+  background-color: #f8f9fa !important;
+}
+
+/* Custom spacing utilities */
+.p-3 {
+  padding: var(--spacing-md) !important;
+}
+
+.mb-4 {
+  margin-bottom: var(--spacing-lg) !important;
+}
+
+/* Executive overview specific styling */
+.executive-overview-container {
+  background-color: var(--card-bg-color);
+  border-radius: var(--border-radius);
+  padding: var(--spacing-lg);
+  box-shadow: var(--shadow-light);
+  margin-bottom: var(--spacing-md);
+}
+
+.chart-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--navbar-bg-color);
+  margin-bottom: var(--spacing-md);
+  text-align: center;
+}
+
+/* Improved layout spacing */
+.main-content {
+  padding-left: var(--spacing-md);
+}
+
+.sidebar-container {
+  padding-right: var(--spacing-md);
+}

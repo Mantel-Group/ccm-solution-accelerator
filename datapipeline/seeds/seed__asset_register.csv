@@ -1,0 +1,90 @@
+resource_type,resource,business_unit,team,location,owner,active
+user,vanessa.kong@mantelgroup.com.au,Cyber,Cyber Security Engineering,AU VIC,vanessa.kong@mantelgroup.com.au,false
+user,stephen.rennick@mantelgroup.com.au,Cyber,Cyber Security GRC,AU VIC,stephen.rennick@mantelgroup.com.au,false
+user,michiel.kalkman@mantelgroup.com.au,Cyber,Cyber Advisory and GRC,AU VIC,michiel.kalkman@mantelgroup.com.au,true
+user,daniel.simpkins@mantelgroup.com.au,Cyber,Cyber Advisory and GRC,AU VIC,daniel.simpkins@mantelgroup.com.au,true
+user,felix.philipose@mantelgroup.com.au,Cyber,Cyber Advisory and GRC,AU VIC,felix.philipose@mantelgroup.com.au,true
+user,glenn.mackieson@mantelgroup.com.au,Cyber,Cyber Advisory and GRC,AU VIC,glenn.mackieson@mantelgroup.com.au,true
+user,gillian.thyer@mantelgroup.com.au,Cyber,Cyber Advisory and GRC,AU VIC,gillian.thyer@mantelgroup.com.au,false
+user,jhanna.boutsyk@mantelgroup.com.au,Cyber,Cyber Advisory and GRC,AU VIC,jhanna.boutsyk@mantelgroup.com.au,true
+user,rob.visscher@mantelgroup.com.au,Cyber,Cyber Advisory and GRC,AU VIC,rob.visscher@mantelgroup.com.au,false
+user,biyu.wu@mantelgroup.com.au,Cyber,Cyber Advisory and GRC,AU VIC,biyu.wu@mantelgroup.com.au,true
+user,david.berardone@mantelgroup.com.au,Cyber,Cyber Advisory and GRC,AU VIC,david.berardone@mantelgroup.com.au,true
+user,peter.hall@mantelgroup.com.au,Cyber,Cyber Engineering,AU VIC,peter.hall@mantelgroup.com.au,false
+user,callum.reardon@mantelgroup.com.au,Cyber,Cyber Engineering,AU VIC,callum.reardon@mantelgroup.com.au,true
+user,joshua.martin@mantelgroup.com.au,Cyber,Cyber Engineering,AU VIC,joshua.martin@mantelgroup.com.au,true
+user,syed.hasnain@mantelgroup.com.au,Cyber,Cyber Engineering,AU VIC,syed.hasnain@mantelgroup.com.au,true
+user,evelina.gyulkhandanyan@mantelgroup.com.au,Cyber,Cyber Engineering,AU VIC,evelina.gyulkhandanyan@mantelgroup.com.au,true
+user,mike.cole@mantelgroup.com.au,Cyber,Cyber Engineering,AU VIC,mike.cole@mantelgroup.com.au,true
+user,darren.xuan@mantelgroup.com.au,Cyber,Cyber Engineering,AU VIC,darren.xuan@mantelgroup.com.au,true
+user,chris.marshall@mantelgroup.com.au,Cyber,Cyber Engineering,AU VIC,chris.marshall@mantelgroup.com.au,true
+user,femitha.majeed@mantelgroup.com.au,Cyber,Cyber Engineering,AU VIC,femitha.majeed@mantelgroup.com.au,true
+user,steve.mccarthy@mantelgroup.com.au,Cyber,Cyber Advisory and GRC,AU NSW,steve.mccarthy@mantelgroup.com.au,true
+user,katrina.salvacion@mantelgroup.com.au,Cyber,Cyber Advisory and GRC,AU NSW,katrina.salvacion@mantelgroup.com.au,true
+user,george.florentine@mantelgroup.com.au,Cyber,Cyber Advisory and GRC,AU NSW,george.florentine@mantelgroup.com.au,true
+user,hunter.zhang@mantelgroup.com.au,Cyber,Cyber Advisory and GRC,AU NSW,hunter.zhang@mantelgroup.com.au,false
+user,shaun.kumar@mantelgroup.com.au,Cyber,Cyber Advisory and GRC,AU NSW,shaun.kumar@mantelgroup.com.au,true
+user,pradyum.gupta@mantelgroup.com.au,Cyber,Cyber Advisory and GRC,AU NSW,pradyum.gupta@mantelgroup.com.au,true
+user,dillon.singh@mantelgroup.com.au,Cyber,Cyber Advisory and GRC,AU NSW,dillon.singh@mantelgroup.com.au,true
+user,mahendra.aryal@mantelgroup.com.au,Cyber,Cyber Engineering,AU NSW,mahendra.aryal@mantelgroup.com.au,true
+user,razin.idzuddin@mantelgroup.com.au,Cyber,Cyber Engineering,AU NSW,razin.idzuddin@mantelgroup.com.au,true
+user,calvin.long@mantelgroup.com.au,Cyber,Cyber Engineering,AU NSW,calvin.long@mantelgroup.com.au,true
+user,zachary.ngooi@mantelgroup.com.au,Cyber,Cyber Engineering,AU NSW,zachary.ngooi@mantelgroup.com.au,true
+user,nick.jenkins@mantelgroup.com.au,Cyber,Cyber Engineering,AU NSW,nick.jenkins@mantelgroup.com.au,true
+user,max.alster-caminer@mantelgroup.com.au,Cyber,Cyber Engineering,AU NSW,max.alster-caminer@mantelgroup.com.au,true
+user,matt.sullivan@mantelgroup.com.au,Cyber,Cyber Engineering,AU NSW,matt.sullivan@mantelgroup.com.au,false
+user,maruf.monsur@mantelgroup.com.au,Cyber,Cyber Engineering,AU NSW,maruf.monsur@mantelgroup.com.au,false
+user,nick.ellsmore@mantelgroup.com.au,Cyber,Cyber Experience,AU NSW,nick.ellsmore@mantelgroup.com.au,true
+user,julia.sharnina@mantelgroup.com.au,Cyber,Cyber,AU QLD,julia.sharnina@mantelgroup.com.au,false
+user,phil.massyn@mantelgroup.com.au,Cyber,Cyber Advisory and GRC,AU QLD,phil.massyn@mantelgroup.com.au,true
+user,bradley.butler@mantelgroup.com.au,Cyber,Cyber Advisory and GRC,AU QLD,bradley.butler@mantelgroup.com.au,true
+user,kevin.wessel@mantelgroup.com.au,Cyber,Cyber Engineering,AU QLD,kevin.wessel@mantelgroup.com.au,true
+user,stephanie.jensen@mantelgroup.com.au,Cyber,Cyber Engineering,AU QLD,stephanie.jensen@mantelgroup.com.au,false
+user,cian.osullivan@mantelgroup.com.au,Cyber,Cyber Experience,AU QLD,cian.osullivan@mantelgroup.com.au,true
+user,marianne.cologon@mantelgroup.com.au,Cyber,Cyber Advisory and GRC,AU ACT,marianne.cologon@mantelgroup.com.au,true
+user,olivia.uhrle@mantelgroup.com.au,Cyber,Cyber,NZ Auckland,olivia.uhrle@mantelgroup.com.au,false
+user,ira.bailey@mantelgroup.com.au,Cyber,Cyber Security Engineering,NZ Auckland,ira.bailey@mantelgroup.com.au,false
+user,rajan.arkenbout@mantelgroup.com.au,Cyber,Cyber Engineering,AU WA,rajan.arkenbout@mantelgroup.com.au,true
+user,jordan.hedges@mantelgroup.com.au,Cyber,Cyber Engineering,AU WA,jordan.hedges@mantelgroup.com.au,true
+user,aaron.doggett@mantelgroup.com.au,Cyber,Cyber Experience,AU WA,aaron.doggett@mantelgroup.com.au,true
+system,C02G743XMD6M,Cyber,Cyber Security Engineering,AU VIC,vanessa.kong@mantelgroup.com.au,false
+system,PQQQY00NYQ,Cyber,Cyber Security GRC,AU VIC,stephen.rennick@mantelgroup.com.au,false
+system,FQGYXFGQWT,Cyber,Cyber Advisory and GRC,AU VIC,michiel.kalkman@mantelgroup.com.au,true
+system,DQH9PVJ42J,Cyber,Cyber Advisory and GRC,AU VIC,daniel.simpkins@mantelgroup.com.au,true
+system,C02FWCQRMD6M,Cyber,Cyber Advisory and GRC,AU VIC,felix.philipose@mantelgroup.com.au,true
+system,C02DP588MD6M,Cyber,Cyber Advisory and GRC,AU VIC,felix.philipose@mantelgroup.com.au,true
+system,G5FW7XQ4JQ,Cyber,Cyber Advisory and GRC,AU VIC,glenn.mackieson@mantelgroup.com.au,true
+system,K4RX35W97N,Cyber,Cyber Advisory and GRC,AU VIC,jhanna.boutsyk@mantelgroup.com.au,true
+system,0F3FQV824043GT,Cyber,Cyber Advisory and GRC,AU VIC,biyu.wu@mantelgroup.com.au,true
+system,0F34M8G24103GT,Cyber,Cyber Advisory and GRC,AU VIC,david.berardone@mantelgroup.com.au,true
+system,C02YF0DUJHD2,Cyber,Cyber Engineering,AU VIC,callum.reardon@mantelgroup.com.au,true
+system,L6J6Q0Q9ML,Cyber,Cyber Engineering,AU VIC,callum.reardon@mantelgroup.com.au,true
+system,HWKK466HQF,Cyber,Cyber Engineering,AU VIC,joshua.martin@mantelgroup.com.au,true
+system,MWTQK7DLWQ,Cyber,Cyber Engineering,AU VIC,syed.hasnain@mantelgroup.com.au,true
+system,C02G42K0ML85,Cyber,Cyber Engineering,AU VIC,evelina.gyulkhandanyan@mantelgroup.com.au,true
+system,JD4XY3PQHF,Cyber,Cyber Engineering,AU VIC,evelina.gyulkhandanyan@mantelgroup.com.au,true
+system,DHW2KF907X,Cyber,Cyber Engineering,AU VIC,mike.cole@mantelgroup.com.au,true
+system,LWT92H9Y4L,Cyber,Cyber Engineering,AU VIC,darren.xuan@mantelgroup.com.au,true
+system,HFPX16LK40,Cyber,Cyber Engineering,AU VIC,chris.marshall@mantelgroup.com.au,true
+system,MW549VV07G,Cyber,Cyber Engineering,AU VIC,femitha.majeed@mantelgroup.com.au,true
+system,011504320957,Cyber,Cyber Advisory and GRC,AU NSW,steve.mccarthy@mantelgroup.com.au,true
+system,NVHQP2LF9P,Cyber,Cyber Advisory and GRC,AU NSW,katrina.salvacion@mantelgroup.com.au,true
+system,H6K79TK4L3,Cyber,Cyber Advisory and GRC,AU NSW,george.florentine@mantelgroup.com.au,true
+system,G4WLXF6CL9,Cyber,Cyber Advisory and GRC,AU NSW,shaun.kumar@mantelgroup.com.au,true
+system,M7140974R1,Cyber,Cyber Advisory and GRC,AU NSW,pradyum.gupta@mantelgroup.com.au,true
+system,LCNXGR9V7C,Cyber,Cyber Advisory and GRC,AU NSW,dillon.singh@mantelgroup.com.au,true
+system,GGK6QRYGJG,Cyber,Cyber Engineering,AU NSW,mahendra.aryal@mantelgroup.com.au,true
+system,HCVJL9144D,Cyber,Cyber Engineering,AU NSW,razin.idzuddin@mantelgroup.com.au,true
+system,V9DD7W49P4,Cyber,Cyber Engineering,AU NSW,calvin.long@mantelgroup.com.au,true
+system,GC9WY253W7,Cyber,Cyber Engineering,AU NSW,zachary.ngooi@mantelgroup.com.au,true
+system,X09T32D2CX,Cyber,Cyber Engineering,AU NSW,nick.jenkins@mantelgroup.com.au,true
+system,DWJYL2Y7F7,Cyber,Cyber Engineering,AU NSW,max.alster-caminer@mantelgroup.com.au,true
+system,BK002GH23383FB,Cyber,Cyber Experience,AU NSW,nick.ellsmore@mantelgroup.com.au,true
+system,W9VW14P12Y,Cyber,Cyber Advisory and GRC,AU QLD,phil.massyn@mantelgroup.com.au,true
+system,F25PWVTDY6,Cyber,Cyber Advisory and GRC,AU QLD,bradley.butler@mantelgroup.com.au,true
+system,K0MKXQCVXQ,Cyber,Cyber Engineering,AU QLD,kevin.wessel@mantelgroup.com.au,true
+system,DWJGT6R749,Cyber,Cyber Experience,AU QLD,cian.osullivan@mantelgroup.com.au,true
+system,MHHH3G2C0D,Cyber,Cyber Advisory and GRC,AU ACT,marianne.cologon@mantelgroup.com.au,true
+system,XC0626X033,Cyber,Cyber Engineering,AU WA,rajan.arkenbout@mantelgroup.com.au,true
+system,X7WGQF1WN6,Cyber,Cyber Experience,AU WA,aaron.doggett@mantelgroup.com.au,true
+system,0F014N922453FB,Cyber,Cyber Advisory and GRC,AU QLD,phil.massyn@mantelgroup.com.au,true

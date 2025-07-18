@@ -1,0 +1,148 @@
+# Example Terraform variables file for GCP deployment
+# Copy this file to terraform.tfvars and update with your actual values
+# WARNING: Never commit terraform.tfvars to version control as it contains sensitive data
+
+#==============================================================================
+# REQUIRED: Google Cloud Project Configuration
+#==============================================================================
+gcp_project_id     = "your-gcp-project-id"           # Your GCP project ID
+gcp_project_number = "123456789012"                  # Your GCP project number (found in GCP Console)
+region             = "australia-southeast1"          # GCP region for deployment
+tenant             = "your-organisation"             # Organisation/tenant identifier (used in resource naming)
+
+#==============================================================================
+# REQUIRED: Container Resource Configuration
+#==============================================================================
+container_cpu    = "1.0"                         # CPU limit (1.0, 2.0, 4.0, 6.0, 8.0)
+container_memory = "2048"                         # Memory limit in MiB
+
+#==============================================================================
+# REQUIRED: Resource Labels/Tags
+#==============================================================================
+tags = {
+  project     = "continuous-controls-monitoring-starter-template"
+  owner       = "security-team@company.com"
+  client      = "internal"
+  domain      = "cyber"
+  environment = "prod"
+  tenant      = "your-organisation"
+}
+
+#==============================================================================
+# REQUIRED: API Credentials and Secrets
+#==============================================================================
+secrets = {
+  # CrowdStrike Falcon Configuration
+  FALCON_CLIENT_ID = "your-crowdstrike-client-id"
+  FALCON_SECRET    = "your-crowdstrike-client-secret"
+
+  # Tenable Configuration
+  TENABLE_ACCESS_KEY = "your-tenable-access-key"
+  TENABLE_SECRET_KEY = "your-tenable-secret-key"
+
+  # KnowBe4 Configuration
+  KNOWBE4_TOKEN = "your-knowbe4-api-token"
+
+  # Okta Configuration
+  OKTA_TOKEN  = "your-okta-api-token"
+  OKTA_DOMAIN = "https://your-org.okta.com"
+
+  # Azure Entra ID Configuration
+  AZURE_TENANT_ID     = "your-azure-tenant-id"
+  AZURE_CLIENT_ID     = "your-azure-client-id"
+  AZURE_CLIENT_SECRET = "your-azure-client-secret"
+
+  # Domain Monitoring
+  DOMAINS = "example.com,company.com"
+}
+
+#==============================================================================
+# OPTIONAL: Slack Alerting Configuration
+#==============================================================================
+alert_slack_webhook = "https://hooks.slack.com/services/YOUR/SLACK/WEBHOOK"
+alert_slack_token   = "xoxb-your-slack-bot-token"
+alert_slack_channel = "#security-alerts"
+
+#==============================================================================
+# OPTIONAL: Database Configuration
+#==============================================================================
+database_name     = "CCMprod"                    # Database name
+database_version  = "POSTGRES_14"                # PostgreSQL version
+database_tier     = "db-f1-micro"                # Database instance tier
+database_username = "ContinuousAssurance"        # Database username
+
+#==============================================================================
+# OPTIONAL: Network Configuration
+#==============================================================================
+vpc_cidr                = "10.0.0.0/16"         # VPC CIDR block
+database_subnet_cidr    = "10.0.1.0/24"         # Database subnet CIDR
+container_subnet_cidr   = "10.0.2.0/24"         # Container subnet CIDR
+
+#==============================================================================
+# OPTIONAL: Job Scheduling Configuration
+#==============================================================================
+# Cron schedules for automated jobs (in UTC timezone)
+cron_schedule              = "0 18 * * *"           # Daily at 6:00 PM UTC (collector)
+datapipeline_cron_schedule = "0 22 * * *"           # Daily at 10:00 PM UTC (4 hours after collector)
+
+
+#==============================================================================
+# ADVANCED: API Services Configuration
+#==============================================================================
+# Override default required APIs if needed (uncomment to customise)
+# gcp_required_apis = [
+#   "serviceusage.googleapis.com",
+#   "cloudresourcemanager.googleapis.com",
+#   "iam.googleapis.com",
+#   "compute.googleapis.com",
+#   "containerregistry.googleapis.com",
+#   "cloudbuild.googleapis.com",
+#   "run.googleapis.com",
+#   "secretmanager.googleapis.com",
+#   "artifactregistry.googleapis.com",
+#   "sqladmin.googleapis.com",
+#   "vpcaccess.googleapis.com",
+#   "servicenetworking.googleapis.com",
+#   "cloudscheduler.googleapis.com"
+# ]
+
+#==============================================================================
+# DEPLOYMENT NOTES
+#==============================================================================
+# 1. PROJECT SETUP:
+#    - Ensure your GCP project has billing enabled
+#    - Install and authenticate gcloud CLI: gcloud auth login
+#    - Set default project: gcloud config set project YOUR_PROJECT_ID
+#
+# 2. ARTIFACT REGISTRY:
+#    - Create Artifact Registry repository before deployment:
+#      gcloud artifacts repositories create ccm-registry --repository-format=docker --location=australia-southeast1
+#
+# 3. CONTAINER IMAGES:
+#    - Build and push container images to Artifact Registry before deployment
+#    - Images needed: collector, datapipeline, dashboard
+#
+# 4. API CREDENTIALS:
+#    - Obtain API tokens from each service (Okta, CrowdStrike, KnowBe4, etc.)
+#    - Ensure API tokens have appropriate permissions for data collection
+#
+# 5. SECURITY:
+#    - Never commit terraform.tfvars to version control
+#    - Use strong, unique passwords for all services
+#    - Regularly rotate API keys and credentials
+#    - Review and adjust db_public_facing and allow_public_web_access for production
+#
+# 6. DEPLOYMENT:
+#    - Run: terraform init
+#    - Run: terraform plan (review changes)
+#    - Run: terraform apply
+#
+# 7. POST-DEPLOYMENT:
+#    - Access dashboard URL from terraform outputs
+#    - Monitor job execution in GCP Console
+#    - Set up monitoring and alerting as needed
+#
+# 8. RESOURCE LIMITS:
+#    - GCP Cloud Run CPU must be one of: 0.08-1, 1.0, 2.0, 4.0, 6.0, 8.0
+#    - Memory should be proportional to CPU allocation
+#    - Adjust timeouts based on your data collection requirements

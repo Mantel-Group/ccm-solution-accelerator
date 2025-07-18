@@ -1,0 +1,69 @@
+module "gcp" {
+  source = "../../gcp"
+  
+  gcp_project_id = "felix-philipose-dev" # CHANGE ME
+  region         = "australia-southeast1" # CHANGE ME
+  tenant         = "stage03" #CHANGE ME
+  
+  alert_slack_webhook = "CHANGE ME"
+  alert_slack_token   = "CHANGE ME"
+  alert_slack_channel = "CHANGE ME"
+  
+  container_cpu    = "1.0"
+  container_memory = "2048"
+  
+  tags = {
+    project     = "continuous-controls-monitoring-starter-template" # CHANGE ME
+    owner       = "felix-philipose" # CHANGE ME
+    client      = "internal" # CHANGE ME
+    domain      = "cyber" # CHANGE ME
+    environment = "stage03" # CHANGE ME
+    tenant      = "stage03" # CHANGE ME
+  }
+  
+  secrets = {
+    FALCON_CLIENT_ID    = "CHANGE ME"
+    FALCON_SECRET       = "CHANGE ME"
+    TENABLE_ACCESS_KEY  = "CHANGE ME"
+    TENABLE_SECRET_KEY  = "CHANGE ME"
+    KNOWBE4_TOKEN       = "CHANGE ME"
+    OKTA_TOKEN          = "CHANGE ME"
+    OKTA_DOMAIN         = "CHANGE ME"
+    AZURE_TENANT_ID     = "CHANGE ME"
+    AZURE_CLIENT_ID     = "CHANGE ME"
+    AZURE_CLIENT_SECRET = "CHANGE ME"
+    DOMAINS             = "CHANGE ME"
+  }
+}
+
+
+# ==== important outputs to return
+
+output "database_server_fqdn" {
+  description = "The FQDN of the PostgreSQL Flexible Server"
+  value       = module.gcp.database_server_fqdn
+}
+
+output "database_username" {
+  description = "The Database username"
+  value       = module.gcp.database_username
+}
+
+output "database" {
+  description = "The Postgres Database name"
+  value       = module.gcp.database
+}
+
+output "dashboard_url" {
+  description = "Application endpoint FQDNs"
+  value       = module.gcp.dashboard_url
+}
+
+output "collector_job_trigger_command" {
+  value       = module.gcp.manual_job_commands.collector_command
+  description = "GCP CLI command to manually trigger the collector job"
+}
+output "datapipeline_job_trigger_command" {
+  value       = module.gcp.manual_job_commands.datapipeline_command
+  description = "GCP CLI command to manually trigger the datapipeline job"
+}

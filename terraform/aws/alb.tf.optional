@@ -1,0 +1,34 @@
+resource "aws_lb" "alb" {
+  name = "ccm-${var.tenant}-alb"
+  internal = false
+  load_balancer_type = "application"
+
+  security_groups = [aws_security_group.sg_alb.id]
+  subnets = var.container_subnets
+  tags = var.tags
+}
+
+resource "aws_lb_listener" "ecs_alb_listener" {
+  load_balancer_arn = aws_lb.alb.arn
+  port              = 80
+  protocol          = "HTTP"
+
+  default_action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.tg.arn
+  }
+  tags = var.tags
+}
+
+resource "aws_lb_target_group" "tg" {
+  name        = "ccm-${var.tenant}-target-group"
+  port        = 8080
+  protocol    = "HTTP"
+  target_type = "ip"
+  vpc_id      = var.vpc_id
+
+  health_check {
+    path = "/healthcheck"
+  }
+  tags = var.tags
+}

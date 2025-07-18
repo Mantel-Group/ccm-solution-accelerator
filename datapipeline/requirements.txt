@@ -1,0 +1,10 @@
+pip
+dbt-core
+dbt-bigquery
+dbt-postgres
+dbt-duckdb
+google-cloud-bigquery
+pandas
+argparse
+python-dotenv
+Jinja2
