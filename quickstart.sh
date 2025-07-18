@@ -22,10 +22,10 @@ export DUCKDB_FILE=../data.duckdb
 export DUCKDB_SCHEMA=source
 
 # == if you want a clean database, uncomment this section
-if [ -f $DUCKDB_FILE ]; then
-    echo "Deleting duckdb file $DUCKDB_FILE"
-    rm $DUCKDB_FILE
-fi
+# if [ -f $DUCKDB_FILE ]; then
+#     echo "Deleting duckdb file $DUCKDB_FILE"
+#     rm $DUCKDB_FILE
+# fi
 
 # == We will only be testing the domains - keep it simple.  You can edit the ../.env file, or add some other variables hre
 export DOMAINS=mantelgroup.com.au,mantelgroup.co.nz,mantelgroup.co.vn,mantelconnect.com,api-keys.ai.mantelgroup.com.au,ai.mantelgroup.com.au
