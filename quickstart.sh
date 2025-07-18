@@ -27,9 +27,6 @@ export DUCKDB_SCHEMA=source
 #     rm $DUCKDB_FILE
 # fi
 
-# == We will only be testing the domains - keep it simple.  You can edit the ../.env file, or add some other variables hre
-export DOMAINS=mantelgroup.com.au,mantelgroup.co.nz,mantelgroup.co.vn,mantelconnect.com,api-keys.ai.mantelgroup.com.au,ai.mantelgroup.com.au
-
 cd collector
 $PY collector.py
 
