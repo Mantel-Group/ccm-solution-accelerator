@@ -1,5 +1,5 @@
 import csv
-from jinja2 import Environment, FileSystemLoader
+from jinja2 import Environment, FileSystemLoader, select_autoescape
 
 def readCSV(file):
     with open(file, 'rt',encoding='utf-8') as q:
@@ -8,7 +8,10 @@ def readCSV(file):
 
 def render_jinja(data,template,output):
     template_dir = '.'
-    env = Environment(loader=FileSystemLoader(template_dir)).get_template(template)
+    env = Environment(
+        loader=FileSystemLoader(template_dir),
+        autoescape=select_autoescape(['html', 'xml', 'md'])
+    ).get_template(template)
     result = env.render(data = data)
     print(f"Writing {output}")
     with open(output,'wt',encoding='utf-8') as q:
