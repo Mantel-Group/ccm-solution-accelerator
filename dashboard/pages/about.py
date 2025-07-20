@@ -21,20 +21,60 @@ layout = html.Div([
         html.P("The dashboard is built using Dash and Plotly, leveraging a database query cache for efficient data retrieval."),
         html.P("For more information on how to use this dashboard, please refer to the documentation or contact the support team."),
     ], className="about-content"),
-    html.H5("Debug info"),
+    html.H4("Support Information"),
     html.Div([
-        dash_table.DataTable(
-            data=[{"Variable": k, "Value": v} for k, v in sorted(debug.items())],
-            columns=[{"name": "Variable", "id": "Variable"},
-                     {"name": "Value", "id": "Value"}],
-            style_table={'overflowX': 'auto'},
-            style_cell={'textAlign': 'left', 'padding': '8px'},
-            style_header={'backgroundColor': 'lightgrey', 'fontWeight': 'bold'},
-            style_data={'whiteSpace': 'normal', 'height': 'auto'}
-        )
-    ], className="env-vars-table"),
-    html.H5("Contact information"),
+        html.P("For support and information:"),
+        html.Ul([
+            html.Li([
+                "View source code and documentation: ",
+                html.A("GitHub Repository", href="https://github.com/mantel-lab/ccm-solution-accelerator/", target="_blank")
+            ]),
+            html.Li([
+                "To report issues or request features: ",
+                html.A("Create a GitHub Issue", href="https://github.com/mantel-lab/ccm-solution-accelerator/issues/new", target="_blank"),
+                " - Please provide detailed information about the issue including steps to reproduce, expected behavior, and any error messages."
+            ])
+        ])
+    ]),
+    
+    html.H4("License"),
     html.Div([
-        html.A("mantelgroup.com.au", href="https://mantelgroup.com.au")
-    ])      
+        html.P("This software has been provided by Mantel Group to your organisation under the following terms:"),
+        html.Ul([
+            html.Li("✅ You are free to run this software in any way that suits your organisation's needs"),
+            html.Li("✅ You may modify and extend the software to meet your specific requirements"),
+            html.Li("✅ You may customize configurations, add new features, or integrate with your existing systems"),
+            html.Li("❌ You are not permitted to share this code outside of your organisation"),
+            html.Li("❌ Distribution, resale, or sharing with external parties is prohibited"),
+            html.Li([
+                "🤝 We encourage you to contribute back to the project by submitting ",
+                html.A("pull requests", href="https://github.com/mantel-lab/ccm-solution-accelerator/pulls", target="_blank"),
+                " for new features, collectors, or metrics that could benefit the broader community"
+            ])
+        ]),
+    ]),
+    html.H4("Contact us"),
+    html.Div([
+        html.Li([
+            "Want to extend this accelerator to suite your environment? ",
+            html.A("Contact us", href="https://mantelgroup.com.au/contact", target="_blank"),
+            
+        ]),
+        html.Li([
+                "Visit our website: ",
+                html.A("mantelgroup.com.au", href="https://mantelgroup.com.au", target="_blank")
+            ]),
+    # html.H4("Debug info"),
+    # html.Div([
+    #     dash_table.DataTable(
+    #         data=[{"Variable": k, "Value": v} for k, v in sorted(debug.items())],
+    #         columns=[{"name": "Variable", "id": "Variable"},
+    #                  {"name": "Value", "id": "Value"}],
+    #         style_table={'overflowX': 'auto'},
+    #         style_cell={'textAlign': 'left', 'padding': '8px'},
+    #         style_header={'backgroundColor': 'lightgrey', 'fontWeight': 'bold'},
+    #         style_data={'whiteSpace': 'normal', 'height': 'auto'}
+    #     )
+    # ], className="env-vars-table"),
+    ])
 ])
