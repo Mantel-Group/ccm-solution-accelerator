@@ -1,2 +1,6 @@
 .env
 __pycache__
+terraform.tfstate
+terraform.tfstate.backup
+main_phil.tf
+*.log
