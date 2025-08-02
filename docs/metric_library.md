@@ -83,7 +83,7 @@ Rotating of passwords is a good security practice. Ensure passwords are rotated 
 
 #### Description
 
-Exploitable Operating System vulnerabilities post a significant risk, and need to be remediated immediately., and need to be remediated immediately.,1.0, and need to be remediated as soon as possible.
+Exploitable Operating System vulnerabilities pose a significant risk and need to be remediated immediately.
 
 #### Meta Data
 
@@ -116,7 +116,7 @@ Exploitable Operating System vulnerabilities post a significant risk, and need t
 
 #### Description
 
-Application vulnerabilities post a significant risk, and need to be remediated as soon as possible.
+Application vulnerabilities pose a significant risk and need to be remediated as soon as possible.
 
 #### Meta Data
 
@@ -149,7 +149,7 @@ Application vulnerabilities post a significant risk, and need to be remediated a
 
 #### Description
 
-Exploitable Operating System vulnerabilities post a significant risk.  Unpatchable vulnerabilities need to have a mitigation applied as soon as possible., and need to be remediated immediately., and need to be remediated as soon as possible.
+Exploitable Operating System vulnerabilities pose a significant risk. Unpatchable vulnerabilities need to have a mitigation applied as soon as possible.
 
 #### Meta Data
 
@@ -204,15 +204,15 @@ Exploitable Operating System vulnerabilities post a significant risk.  Unpatcha
 
 #### Description
 
-Exploitable Application vulnerabilities post a significant risk.  Unpatchable vulnerabilities need to have a mitigation applied as soon as possible., and need to be remediated as soon as possible., and need to be remediated as soon as possible., and need to be remediated as soon as possible.
+Exploitable Application vulnerabilities pose a significant risk. Unpatchable vulnerabilities need to have a mitigation applied as soon as possible.
 
 #### Meta Data
 
 | Attribute         | Value                                                                                |
 |-------------------|--------------------------------------------------------------------------------------|
 | **Metric id**     | `VM04`                                                               |
-| **SLO**           | 90.0% - 50.0% |
-| **Weight**        | 0.8                                                                    |
+| **SLO**           | 95.0% - 90.0% |
+| **Weight**        | 0.5                                                                    |
 | **Resource Type** | system                                                             |
 
 #### Frameworks
@@ -260,7 +260,7 @@ Exploitable Application vulnerabilities post a significant risk.  Unpatchable v
 
 #### Description
 
-Non-explotable vulnerabilities post a low risk, and need to be remediated per organisational SLAs., and need to be remediated as soon as possible., and need to be remediated as soon as possible., and need to be remediated as soon as possible.
+Non-exploitable vulnerabilities pose a low risk and need to be remediated per organisational SLAs.
 
 #### Meta Data
 
@@ -304,14 +304,14 @@ Non-explotable vulnerabilities post a low risk, and need to be remediated per or
 
 #### Description
 
-Non-explotable vulnerabilities post a low risk, and need to be remediated per organisational SLAs., and need to be remediated as soon as possible.
+Non-exploitable vulnerabilities pose a low risk and need to be remediated per organisational SLAs.
 
 #### Meta Data
 
 | Attribute         | Value                                                                                |
 |-------------------|--------------------------------------------------------------------------------------|
 | **Metric id**     | `VM06`                                                               |
-| **SLO**           | 90.0% - 20.0% |
+| **SLO**           | 95.0% - 20.0% |
 | **Weight**        | 0.8                                                                    |
 | **Resource Type** | system                                                             |
 
@@ -337,14 +337,14 @@ Non-explotable vulnerabilities post a low risk, and need to be remediated per or
 
 #### Description
 
-Non-explotable vulnerabilities post a low risk, and need to be remediated per organisational SLAs., and need to be remediated as soon as possible.
+Non-exploitable vulnerabilities pose a low risk and need to be remediated per organisational SLAs.
 
 #### Meta Data
 
 | Attribute         | Value                                                                                |
 |-------------------|--------------------------------------------------------------------------------------|
 | **Metric id**     | `VM07`                                                               |
-| **SLO**           | 90.0% - 20.0% |
+| **SLO**           | 95.0% - 20.0% |
 | **Weight**        | 0.8                                                                    |
 | **Resource Type** | system                                                             |
 
@@ -381,14 +381,14 @@ Non-explotable vulnerabilities post a low risk, and need to be remediated per or
 
 #### Description
 
-Non-explotable vulnerabilities post a low risk, and need to be remediated per organisational SLAs., and need to be remediated as soon as possible.
+Non-exploitable vulnerabilities pose a low risk and need to be remediated per organisational SLAs.
 
 #### Meta Data
 
 | Attribute         | Value                                                                                |
 |-------------------|--------------------------------------------------------------------------------------|
 | **Metric id**     | `VM08`                                                               |
-| **SLO**           | 90.0% - 20.0% |
+| **SLO**           | 95.0% - 20.0% |
 | **Weight**        | 0.8                                                                    |
 | **Resource Type** | system                                                             |
 
@@ -476,7 +476,7 @@ Regular security awareness training will reduce the risk of human error by provi
 
 #### Description
 
-Removing old entries from the Vulnerability Management tool ensures consistency and accuracy in the way how vulnerabilities are detected and reported.
+Regular monitoring of host activity ensures that security tools maintain visibility of all systems in the environment and can detect potential security issues.
 
 #### Meta Data
 
