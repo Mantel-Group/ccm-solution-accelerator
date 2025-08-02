@@ -4,3 +4,6 @@ terraform.tfstate
 terraform.tfstate.backup
 main_phil.tf
 *.log
+_admintool
+datapipeline/seeds/seed__metric_library.csv.backup_*
+.terraform*
