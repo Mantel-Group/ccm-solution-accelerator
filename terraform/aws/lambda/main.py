@@ -33,17 +33,18 @@ def find_ip(tenant: str) -> str:
         if target_container not in [c["name"] for c in task["containers"]]:
             continue
 
-        started_at = task["startedAt"]
-        eni_id = next(
-            (d["value"]
-             for att in task["attachments"]
-             if att["type"] == "ElasticNetworkInterface"
-             for d in att["details"]
-             if d["name"] == "networkInterfaceId"),
-            None
-        )
-        if eni_id and (newest_time is None or started_at > newest_time):
-            newest_time, newest_eni = started_at, eni_id
+        if 'startedAt' in task:
+            started_at = task["startedAt"]
+            eni_id = next(
+                (d["value"]
+                for att in task["attachments"]
+                if att["type"] == "ElasticNetworkInterface"
+                for d in att["details"]
+                if d["name"] == "networkInterfaceId"),
+                None
+            )
+            if eni_id and (newest_time is None or started_at > newest_time):
+                newest_time, newest_eni = started_at, eni_id
 
     if newest_eni is None:
         raise RuntimeError("ENI not found")
