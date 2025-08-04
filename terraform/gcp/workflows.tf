@@ -10,13 +10,13 @@ resource "google_workflows_workflow" "workflow" {
                 call: googleapis.run.v1.namespaces.jobs.run
                 args:
                     name: "namespaces/${var.gcp_project_id}/jobs/collector"
-                    location: ${var.region}
+                    location: "${var.region}"
                 result: collector_execution
             - run_dbt:
                 call: googleapis.run.v1.namespaces.jobs.run
                 args:
                     name: "namespaces/${var.gcp_project_id}/jobs/dbt"
-                    location: ${var.region}
+                    location: "${var.region}"
     EOF
 
   depends_on = [
