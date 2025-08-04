@@ -31,46 +31,23 @@ resource "google_project_iam_member" "scheduler_run_viewer" {
   depends_on = [time_sleep.all_apis_ready]
 }
 
-# Collector runs first at 6:00 PM
-resource "google_cloud_scheduler_job" "collector_schedule" {
-  name      = "ccm-${var.tenant}-collector-schedule"
+resource "google_cloud_scheduler_job" "workflow_schedule" {
+  name      = "ccm-${var.tenant}-workflow_schedule"
   schedule  = var.cron_schedule
   time_zone = "Australia/Sydney"
   region    = var.region
 
   http_target {
     http_method = "POST"
-    uri         = "https://${var.region}-run.googleapis.com/apis/run.googleapis.com/v1/namespaces/${var.gcp_project_id}/jobs/ccm-${var.tenant}-collector:run"
+    uri         = "https://workflowexecutions.googleapis.com/v1/projects/${var.gcp_project_id}/locations/${var.region}/workflows/ccm-${var.tenant}-workflow/executions"
 
     oauth_token {
-      service_account_email = google_service_account.scheduler_sa.email
+      service_account_email = google_service_account.cloud_run_sa.email
     }
   }
 
   depends_on = [
-    google_project_service.cloudscheduler,
-    google_project_iam_member.scheduler_run_invoker,
-    time_sleep.all_apis_ready
-  ]
-}
-
-# Datapipeline runs 6 hours later at 10:00 PM (assuming collector takes < 3 hours)
-resource "google_cloud_scheduler_job" "datapipeline_schedule" {
-  name      = "ccm-${var.tenant}-datapipeline-schedule"
-  schedule  = var.datapipeline_cron_schedule # 10:00 PM daily (4 hours after collector)
-  time_zone = "Australia/Sydney"
-  region    = var.region
-
-  http_target {
-    http_method = "POST"
-    uri         = "https://${var.region}-run.googleapis.com/apis/run.googleapis.com/v1/namespaces/${var.gcp_project_id}/jobs/ccm-${var.tenant}-datapipeline:run"
-
-    oauth_token {
-      service_account_email = google_service_account.scheduler_sa.email
-    }
-  }
-
-  depends_on = [
+    google_workflows_workflow.workflow,
     google_project_service.cloudscheduler,
     google_project_iam_member.scheduler_run_invoker,
     time_sleep.all_apis_ready

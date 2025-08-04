@@ -128,12 +128,6 @@ variable "container_memory" {
   default     = "2048"
 }
 
-variable "datapipeline_cron_schedule" {
-  type        = string
-  description = "The cron schedule when the datapipeline job is expected to kick off"
-  default     = "0 22 * * *"
-}
-
 # ===== Dashboard
 
 variable "dashboard_cidr_inbound_allow" {

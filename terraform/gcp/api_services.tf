@@ -31,10 +31,16 @@ resource "google_project_service" "iam" {
   depends_on         = [time_sleep.after_cloudresourcemanager]
 }
 
+resource "google_project_service" "workflows" {
+  service            = "workflows.googleapis.com"
+  disable_on_destroy = false
+  depends_on         = [time_sleep.after_cloudresourcemanager]
+}
+
 # Longer wait after core APIs to ensure propagation
 resource "time_sleep" "core_apis_ready" {
   create_duration = "30s"
-  depends_on      = [google_project_service.iam]
+  depends_on      = [google_project_service.iam, google_project_service.workflows]
 }
 
 # REMAINING APIs - Can be enabled after core APIs are ready
@@ -104,6 +110,7 @@ resource "time_sleep" "all_apis_ready" {
     google_project_service.cloudbuild,
     google_project_service.cloudscheduler,
     google_project_service.servicenetworking,
-    google_project_service.vpcaccess
+    google_project_service.vpcaccess,
+    google_project_service.workflows
   ]
 }
