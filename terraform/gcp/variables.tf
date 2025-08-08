@@ -113,7 +113,7 @@ variable "db_version" {
 variable "cron_schedule" {
   type        = string
   description = "The cron schedule when the collector job is expected to kick off"
-  default     = "0 18 * * *"
+  default     = "15 21 * * *"
 }
 
 variable "container_cpu" {

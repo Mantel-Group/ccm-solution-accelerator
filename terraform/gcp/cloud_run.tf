@@ -52,7 +52,9 @@ locals {
   # Service account IAM roles
   service_account_roles = [
     "roles/cloudsql.client",
-    "roles/cloudsql.editor"
+    "roles/cloudsql.editor",
+    "roles/workflows.invoker",
+    "roles/run.developer"
   ]
 }
 
