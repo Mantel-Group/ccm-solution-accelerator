@@ -59,4 +59,7 @@ There are two options to deploy the solution:
 * [Local Deployment](docs/01-quickstart.md)
 * [Cloud (AWs/Azure/GCP) via Terraform](docs/02-terraform.md)
 
+## Licensing
 
+The Solution Accelerator is distributed under the [GNU General Public License v3.0
+](https://choosealicense.com/licenses/gpl-3.0/#) license.

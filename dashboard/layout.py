@@ -7,11 +7,11 @@ def get_layout():
                 html.A([
     html.Img(
         src="/assets/mantel.png", 
-        alt="Mantel Group Logo", 
+        alt="Mantel Logo", 
         height="30",
         className="d-inline-block align-text-top me-2"
     ),
-    "Mantel Group - Continuous Controls Monitoring"
+    "Mantel - Continuous Controls Monitoring"
 ], className="navbar-brand", href="/"),
                 html.Button(
                     html.Span(className="navbar-toggler-icon"),
