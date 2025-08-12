@@ -11,6 +11,8 @@ resource "google_workflows_workflow" "workflow" {
                 args:
                     name: "namespaces/${var.gcp_project_id}/jobs/ccm-${var.tenant}-collector"
                     location: "${var.region}"
+                    connector_params:
+                      timeout: 86400
                 result: collector_execution
             - run_dbt:
                 call: googleapis.run.v1.namespaces.jobs.run
