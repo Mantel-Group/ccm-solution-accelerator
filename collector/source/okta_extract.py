@@ -7,6 +7,8 @@ import os
 import random
 from dotenv import load_dotenv
 import pandas as pd
+from urllib.parse import urlparse
+import re
 
 logging.basicConfig(
     level=logging.INFO,
@@ -30,7 +32,9 @@ class Source:
             # == users    
             logging.info("Starting user extraction...")
             asyncio.run(self.users())
-            logging.info(f"Extracted {len(self.users)} users")
+
+            logging.info("Starting device extraction...")
+            asyncio.run(self.devices())
 
             # Concurrent factors extraction
             logging.info("Starting concurrent factors extraction...")
@@ -196,6 +200,95 @@ class Source:
         
         self.collector.store_df('okta_users', pd.DataFrame(flatten_df))
         self.collector.write_df('okta_users')
+
+    def _okta_devices(self, device):
+        return {
+            "id": device.get("id"),
+            "created": datetime.datetime.strptime(device.get("created"), "%Y-%m-%dT%H:%M:%S.000Z") if device.get("created") else pd.NaT,
+            "status": device.get("status"),
+            "lastupdated": datetime.datetime.strptime(device.get("lastUpdated"), "%Y-%m-%dT%H:%M:%S.000Z") if device.get("lastUpdated") else pd.NaT,
+            "profile_displayname": device.get("profile", {}).get("displayName"),
+            "profile_platform": device.get("profile", {}).get("platform"),
+            "profile_manufacturer": device.get("profile", {}).get("manufacturer"),
+            "profile_model": device.get("profile", {}).get("model"),
+            "profile_osversion": device.get("profile", {}).get("osVersion"),
+            "profile_registered": bool(device.get("profile", {}).get("registered")) if device.get("profile", {}).get("registered") is not None else None,
+            "profile_securehardwarepresent": bool(device.get("profile", {}).get("secureHardwarePresent")) if device.get("profile", {}).get("secureHardwarePresent") is not None else None,
+            "profile_authenticatorappkey": device.get("profile", {}).get("authenticatorAppKey"),
+            "resourcetype": device.get("resourceType"),
+            "resourcedisplayname_value": device.get("resourceDisplayName", {}).get("value"),
+            "resourcedisplayname_sensitive": bool(device.get("resourceDisplayName", {}).get("sensitive")) if device.get("resourceDisplayName", {}).get("sensitive") is not None else None,
+            "resourceid": device.get("resourceId"),
+            "resourcealternateid": device.get("resourceAlternateId"),
+        }
+    
+    async def devices(self):
+        flatten_df = []
+        next_url = '/api/v1/devices'
+        
+        try:
+            while next_url:
+                # Use generic request executor since list_devices() doesn't exist
+                request, error = await self.client.get_request_executor().create_request(
+                    method='GET',
+                    url=next_url,
+                    body={},
+                    headers={}
+                )
+                
+                if error:
+                    logging.error(f"Error creating devices request: {error}")
+                    self.collector.write_blank('okta_devices', self._okta_devices({}))
+                    return
+                    
+                response, error = await self.client.get_request_executor().execute(request, None)
+                
+                if error:
+                    logging.error(f"Error executing devices request: {error}")
+                    self.collector.write_blank('okta_devices', self._okta_devices({}))
+                    return
+                    
+                # Get the response body
+                devices_data = response.get_body()
+                
+                if devices_data:
+                    for device in devices_data:
+                        flatten_df.append(self._okta_devices(device))
+                    
+                    # Handle pagination by checking Link header
+                    next_url = None
+                    headers = response.get_headers()
+                    
+                    if headers and 'Link' in headers:             
+                        link_header = ';'.join(headers.getall('Link'))
+                        # Parse Link header to find next page URL
+                        # Format: <url>; rel="next", <url>; rel="prev"
+                        next_match = re.search(r'<([^>]+)>;\s*rel="next"', link_header)
+                        if next_match:
+                            next_url = next_match.group(1)
+                            # Extract just the path if it's a full URL
+                            if next_url.startswith('http'):
+                                parsed = urlparse(next_url)
+                                next_url = parsed.path + ('?' + parsed.query if parsed.query else '')
+                            logging.debug(f"Found next page URL: {next_url}")
+                    
+                    logging.debug(f"Processed {len(devices_data)} devices, next_url: {next_url}")
+                else:
+                    logging.warning("No devices found in response")
+                    break
+                
+        except Exception as e:
+            logging.error(f"Unexpected error fetching devices: {e}")
+            self.collector.write_blank('okta_devices', self._okta_devices({}))
+            return
+        
+        if flatten_df:
+            self.collector.store_df('okta_devices', pd.DataFrame(flatten_df))
+            logging.info(f"Successfully processed {len(flatten_df)} total devices")
+        else:
+            self.collector.write_blank('okta_devices', self._okta_devices({}))
+            
+        self.collector.write_df('okta_devices')
 
 # == we create the __main__ bit to allow the plugin to be manually run when needed.
 if __name__ == '__main__':
