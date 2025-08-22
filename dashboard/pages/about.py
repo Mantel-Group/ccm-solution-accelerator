@@ -27,11 +27,11 @@ layout = html.Div([
         html.Ul([
             html.Li([
                 "View source code and documentation: ",
-                html.A("GitHub Repository", href="https://github.com/mantel-lab/ccm-solution-accelerator/", target="_blank")
+                html.A("GitHub Repository", href="https://github.com/mantel-group/ccm-solution-accelerator/", target="_blank")
             ]),
             html.Li([
                 "To report issues or request features: ",
-                html.A("Create a GitHub Issue", href="https://github.com/mantel-lab/ccm-solution-accelerator/issues/new", target="_blank"),
+                html.A("Create a GitHub Issue", href="https://github.com/mantel-group/ccm-solution-accelerator/issues/new", target="_blank"),
                 " - Please provide detailed information about the issue including steps to reproduce, expected behavior, and any error messages."
             ])
         ])
@@ -48,7 +48,7 @@ layout = html.Div([
             html.Li("❌ Distribution, resale, or sharing with external parties is prohibited"),
             html.Li([
                 "🤝 We encourage you to contribute back to the project by submitting ",
-                html.A("pull requests", href="https://github.com/mantel-lab/ccm-solution-accelerator/pulls", target="_blank"),
+                html.A("pull requests", href="https://github.com/mantel-group/ccm-solution-accelerator/pulls", target="_blank"),
                 " for new features, collectors, or metrics that could benefit the broader community"
             ])
         ]),
@@ -64,17 +64,5 @@ layout = html.Div([
                 "Visit our website: ",
                 html.A("mantelgroup.com.au", href="https://mantelgroup.com.au", target="_blank")
             ]),
-    # html.H4("Debug info"),
-    # html.Div([
-    #     dash_table.DataTable(
-    #         data=[{"Variable": k, "Value": v} for k, v in sorted(debug.items())],
-    #         columns=[{"name": "Variable", "id": "Variable"},
-    #                  {"name": "Value", "id": "Value"}],
-    #         style_table={'overflowX': 'auto'},
-    #         style_cell={'textAlign': 'left', 'padding': '8px'},
-    #         style_header={'backgroundColor': 'lightgrey', 'fontWeight': 'bold'},
-    #         style_data={'whiteSpace': 'normal', 'height': 'auto'}
-    #     )
-    # ], className="env-vars-table"),
     ])
 ])
