@@ -24,6 +24,7 @@ By automating data collection, transformation, and reporting, our CCM Dashboard 
 * `datapipeline` - the Docker instance with the dbt job to generate the metics
 * `dashboard` - The basic Python Dash dashboard
 * `terraform` - The terraform infrastructure deployer
+* `powerbi` - A basic PowerBI dashboard is included if you'd like to use that instead.
 
 ## Other documentation
 
@@ -33,6 +34,7 @@ By automating data collection, transformation, and reporting, our CCM Dashboard 
 * Deploying to [Production](docs/04-production.md)
 * [Metrics Library](docs/metric_library.md)
 * [Attribution](docs/attribution.md)
+* [PowerBI](powerbi/README.md)
 
 ## Supported database platforms
 
