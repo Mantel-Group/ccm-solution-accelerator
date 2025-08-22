@@ -3,7 +3,7 @@
 A PowerBI template is provided as part of the solution accelerator.
 
 * Import the [template](ccm-powerbi-template.pbit) into PowerBI
-* Update the data source settings to point to your PostGres database.  Open the Data Model / **Transform Data** / **Data source settings**.
+* Update the data source settings to point to your PostgreSQL database.  Open the Data Model / **Transform Data** / **Data source settings**.
 
 ![data_source](data_source_settings.png)
 
