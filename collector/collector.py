@@ -156,72 +156,6 @@ class Collector:
         if tag in self.df:
             self.df[tag] = pd.DataFrame()
 
-    def xxxstore(self,tag,data):
-        collection_duration = int((datetime.datetime.now() - self.collection_start).total_seconds())
-        status = []
-
-        dst = 'dest'
-        tag = tag.lower().replace('.','_')
-
-        if len(data) > 0:
-            logging.info(f" DESTINATION of {tag} -- total of {len(data)} records")
-            # -- loop through all plugins in the source folder
-            for p  in sorted([f for f in os.listdir(dst) if f.endswith('.py')]):
-                #logging.info(f"Destination plugin - {dst}/{p}")
-                m = p.replace('.py','')
-                try:
-                    getattr(importlib.import_module(f"{dst}.{m}"),"Destination")(self,tag,data)
-                    status.append({m : "SUCCESS"})
-                except Exception as e:
-                    logging.error(f"Error running destination : {m} - {e}")
-                    status.append({m : "ERROR"})
-        else:
-            logging.warning(f" DESTINATION of {tag} -- No records to be written.. Will be skipped.")
-
-        self.collection_start = datetime.datetime.now()
-
-    def xxxdf_to_postgres(self,df,table,if_exists = 'replace'):
-        try:
-            # Connection string with proper URL encoding
-            connection_string = f"postgresql+psycopg://{os.environ['POSTGRES_USERNAME']}:{quote(os.environ['POSTGRES_PASSWORD'])}@{os.environ['POSTGRES_ENDPOINT']}:{os.environ.get('POSTGRES_PORT','5432')}/{os.environ['POSTGRES_DATABASE']}?options=-csearch_path%3D{os.environ.get('POSTGRES_SCHEMA','public')}"
-
-            try:
-                engine = create_engine(connection_string, pool_pre_ping=True)
-                engine.connect()  # Test connection
-            except Exception as e:
-                logging.critical(f"FAILED connecting to POSTGRES : {e}")
-                sys.exit(1)
-
-            with engine.connect() as conn:
-                conn.execute(text("DEALLOCATE ALL"))    
-            
-            try:
-                df.to_sql(table, engine, if_exists=if_exists, index=False,     schema=os.environ['POSTGRES_SCHEMA'])
-                logging.info(" - SUCCESS writing POSTGRES")
-            except Exception as e:
-                logging.error(f" - ERROR writing POSTGRES : {e}")
-
-        except Exception as e:
-            logging.error(f" - ERROR Unexpected error during sync: {e}")
-            sys.exit(1)
-
-    def xxxdf_to_duckdb(self,df,table,if_exists = 'replace'):
-        try:
-            duckdb_file = os.environ['DUCKDB_FILE']
-            duckdb_schema = os.environ.get('DUCKDB_SCHEMA','source')
-            # duckdb:///<file> — three slashes if it's a relative path
-            engine = create_engine(f'duckdb:///{duckdb_file}')
-        except Exception as error:
-            logging.critical(f"Unable to create DuckDB engine for: {duckdb_file} - {error}")
-            sys.exit(1)
-
-        try:
-            df.to_sql(table, engine, if_exists=if_exists, index=False, schema=duckdb_schema)
-            logging.info(" - SUCCESS writing DUCKDB")
-        except Exception as e:
-            logging.error(f" - ERROR writing DUCKDB : {e}")
-            sys.exit(1)
-
     def cleanup(self):
         """Clean up resources"""
         try:
@@ -318,7 +252,6 @@ class UploadBigQuery:
             self.client.close()
             self.client = None
             logging.info("BigQuery connection closed")
-
 
 class UploadPostgress:
     def __init__(self, collector):

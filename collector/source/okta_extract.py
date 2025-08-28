@@ -9,6 +9,9 @@ from dotenv import load_dotenv
 import pandas as pd
 from urllib.parse import urlparse
 import re
+import requests
+import time
+import json
 
 logging.basicConfig(
     level=logging.INFO,
@@ -36,16 +39,21 @@ class Source:
             logging.info("Starting device extraction...")
             asyncio.run(self.devices())
 
-            # Concurrent factors extraction
-            logging.info("Starting concurrent factors extraction...")
-            asyncio.run(self.factors_concurrent())
-            logging.info(f"Extracted factors for {len(self.flatten)} total factors")
+            # # Concurrent factors extraction
+            # logging.info("Starting concurrent factors extraction...")
+            # asyncio.run(self.factors_concurrent())
+            # logging.info(f"Extracted factors for {len(self.flatten)} total factors")
             
-            self.collector.store_df('okta_factors', pd.DataFrame(self.flatten))
-            self.collector.write_df('okta_factors')
+            # self.collector.store_df('okta_factors', pd.DataFrame(self.flatten))
+            # self.collector.write_df('okta_factors')
+
+            logging.info("Starting logs extraction...")
+            self.logs()
         else:
             self.collector.write_blank('okta_users'   , self._okta_users({}))
             self.collector.write_blank('okta_factors' , self._okta_factors({},''))
+            self.collector.write_blank('okta_devices' , self._okta_devices({},''))
+            self.collector.write_blank('okta_logs'    , self._logs({}))
     
     def is_rate_limit_error(self, exception):
         """Detect if the exception is a rate limit error"""
@@ -289,6 +297,142 @@ class Source:
             self.collector.write_blank('okta_devices', self._okta_devices({}))
             
         self.collector.write_df('okta_devices')
+
+    def _logs(self, log):
+        if not log or not isinstance(log, dict):
+            log = {}
+        
+        return {
+            "uuid": log.get("uuid"),
+            "published": datetime.datetime.strptime(log.get("published"), "%Y-%m-%dT%H:%M:%S.%fZ") if log.get("published") else pd.NaT,
+            "eventtype": log.get("eventType"),
+            "version": log.get("version"),
+            "severity": log.get("severity"),
+            "legacyeventtype": log.get("legacyEventType"),
+            "displaymessage": log.get("displayMessage"),
+            "actor_id": log.get("actor", {}).get("id") if log.get("actor") else None,
+            "actor_type": log.get("actor", {}).get("type") if log.get("actor") else None,
+            "actor_alternateid": log.get("actor", {}).get("alternateId") if log.get("actor") else None,
+            "actor_displayname": log.get("actor", {}).get("displayName") if log.get("actor") else None,
+            "client_useragent_rawuseragent": log.get("client", {}).get("userAgent", {}).get("rawUserAgent") if log.get("client") and log.get("client", {}).get("userAgent") else None,
+            "client_useragent_os": log.get("client", {}).get("userAgent", {}).get("os") if log.get("client") and log.get("client", {}).get("userAgent") else None,
+            "client_useragent_browser": log.get("client", {}).get("userAgent", {}).get("browser") if log.get("client") and log.get("client", {}).get("userAgent") else None,
+            "client_zone": log.get("client", {}).get("zone") if log.get("client") else None,
+            "client_device": log.get("client", {}).get("device") if log.get("client") else None,
+            "client_id": log.get("client", {}).get("id") if log.get("client") else None,
+            "client_ipaddress": log.get("client", {}).get("ipAddress") if log.get("client") else None,
+            "client_geographicalcontext_city": log.get("client", {}).get("geographicalContext", {}).get("city") if log.get("client") and log.get("client", {}).get("geographicalContext") else None,
+            "client_geographicalcontext_state": log.get("client", {}).get("geographicalContext", {}).get("state") if log.get("client") and log.get("client", {}).get("geographicalContext") else None,
+            "client_geographicalcontext_country": log.get("client", {}).get("geographicalContext", {}).get("country") if log.get("client") and log.get("client", {}).get("geographicalContext") else None,
+            "client_geographicalcontext_postalcode": log.get("client", {}).get("geographicalContext", {}).get("postalCode") if log.get("client") and log.get("client", {}).get("geographicalContext") else None,
+            "client_geographicalcontext_geolocation_lat": log.get("client", {}).get("geographicalContext", {}).get("geolocation", {}).get("lat") if log.get("client") and log.get("client", {}).get("geographicalContext") and log.get("client", {}).get("geographicalContext", {}).get("geolocation") else None,
+            "client_geographicalcontext_geolocation_lon": log.get("client", {}).get("geographicalContext", {}).get("geolocation", {}).get("lon") if log.get("client") and log.get("client", {}).get("geographicalContext") and log.get("client", {}).get("geographicalContext", {}).get("geolocation") else None,
+            "outcome_result": log.get("outcome", {}).get("result") if log.get("outcome") else None,
+            "outcome_reason": log.get("outcome", {}).get("reason") if log.get("outcome") else None,
+            "target_id": log.get("target", [{}])[0].get("id") if log.get("target") and len(log.get("target")) > 0 and log.get("target")[0] else None,
+            "target_type": log.get("target", [{}])[0].get("type") if log.get("target") and len(log.get("target")) > 0 and log.get("target")[0] else None,
+            "target_alternateid": log.get("target", [{}])[0].get("alternateId") if log.get("target") and len(log.get("target")) > 0 and log.get("target")[0] else None,
+            "target_displayname": log.get("target", [{}])[0].get("displayName") if log.get("target") and len(log.get("target")) > 0 and log.get("target")[0] else None,
+            "transaction_type": log.get("transaction", {}).get("type") if log.get("transaction") else None,
+            "transaction_id": log.get("transaction", {}).get("id") if log.get("transaction") else None,
+            "transaction_detail": json.dumps(log.get("transaction", {}).get("detail")) if log.get("transaction") and log.get("transaction", {}).get("detail") else None,
+            "debugcontext_debugdata": json.dumps(log.get("debugContext", {}).get("debugData")) if log.get("debugContext") and log.get("debugContext", {}).get("debugData") else None,
+            "authenticationcontext_authenticationprovider": log.get("authenticationContext", {}).get("authenticationProvider") if log.get("authenticationContext") else None,
+            "authenticationcontext_authenticationstep": log.get("authenticationContext", {}).get("authenticationStep") if log.get("authenticationContext") else None,
+            "authenticationcontext_credentialprovider": log.get("authenticationContext", {}).get("credentialProvider") if log.get("authenticationContext") else None,
+            "authenticationcontext_credentialtype": log.get("authenticationContext", {}).get("credentialType") if log.get("authenticationContext") else None,
+            "authenticationcontext_issuer": log.get("authenticationContext", {}).get("issuer") if log.get("authenticationContext") else None,
+            "authenticationcontext_externalSessionId": log.get("authenticationContext", {}).get("externalSessionId") if log.get("authenticationContext") else None,
+            "securitycontext_aswellknown": log.get("securityContext", {}).get("asWellKnown") if log.get("securityContext") else None,
+            "securitycontext_asos": log.get("securityContext", {}).get("asOrg") if log.get("securityContext") else None,
+            "securitycontext_asisp": log.get("securityContext", {}).get("asIsp") if log.get("securityContext") else None,
+            "securitycontext_domain": log.get("securityContext", {}).get("domain") if log.get("securityContext") else None,
+            "securitycontext_isthreat": log.get("securityContext", {}).get("isThreat") if log.get("securityContext") else None,
+            "securitycontext_istunnelinganonymizer": log.get("securityContext", {}).get("isTunnelingAnonymizer") if log.get("securityContext") else None,
+            "securitycontext_istorexitnode": log.get("securityContext", {}).get("isTorExitNode") if log.get("securityContext") else None,
+        }
+
+    def logs(self):
+        try:
+            domain = os.environ['OKTA_DOMAIN'].rstrip('/')
+            token = os.environ['OKTA_TOKEN']
+            
+            since = (datetime.datetime.now() - datetime.timedelta(hours=26)).strftime('%Y-%m-%dT%H:%M:%S.000Z')
+            
+            url = f"{domain}/api/v1/logs"
+            headers = {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                'Authorization': f'SSWS {token}'
+            }
+            params = {
+                'since': since,
+                'limit': 1000
+            }
+            
+            flatten_df = []
+            
+            while url:
+                logging.debug(f"Fetching logs from: {url}")
+                
+                response = requests.get(url, headers=headers, params=params if url == f"{domain}/api/v1/logs" else None)
+                
+                if response.status_code == 429:
+                    rate_limit_reset = response.headers.get('X-Rate-Limit-Reset')
+                    if rate_limit_reset:
+                        wait_time = int(rate_limit_reset) - int(time.time()) + 1
+                        logging.warning(f"Rate limit hit. Waiting {wait_time} seconds...")
+                        time.sleep(wait_time)
+                        continue
+                    else:
+                        time.sleep(60)
+                        continue
+                
+                if response.status_code != 200:
+                    logging.error(f"Error fetching logs: {response.status_code} - {response.text}")
+                    break
+                
+                try:
+                    logs_data = response.json()
+                except ValueError as e:
+                    logging.error(f"Failed to parse JSON response: {e}")
+                    break
+                
+                if not logs_data or not isinstance(logs_data, list):
+                    logging.info("No more logs found or invalid data format")
+                    break
+                
+                for log in logs_data:
+                    if log and isinstance(log, dict):
+                        flatten_df.append(self._logs(log))
+                    else:
+                        logging.warning(f"Skipping invalid log entry: {log}")
+                
+                logging.info(f"Processed {len(logs_data)} logs")
+                
+                next_url = None
+                if 'Link' in response.headers:
+                    link_header = response.headers['Link']
+                    next_match = re.search(r'<([^>]+)>;\s*rel="next"', link_header)
+                    if next_match:
+                        next_url = next_match.group(1)
+                        logging.debug(f"Found next page URL: {next_url}")
+                
+                url = next_url
+                params = None
+            
+            if flatten_df:
+                self.collector.store_df('okta_logs', pd.DataFrame(flatten_df))
+                logging.info(f"Successfully processed {len(flatten_df)} total logs")
+            else:
+                self.collector.write_blank('okta_logs', self._logs({}))
+                
+            self.collector.write_df('okta_logs')
+            
+        except Exception as e:
+            logging.error(f"Error extracting logs: {e}")
+            self.collector.write_blank('okta_logs', self._logs({}))
+            self.collector.write_df('okta_logs')
 
 # == we create the __main__ bit to allow the plugin to be manually run when needed.
 if __name__ == '__main__':
