@@ -66,19 +66,19 @@ layout = html.Div([
             html.Div([
                 html.Div([
                     dcc.Graph(
-                        id="dimension-graph", 
+                        id="dimension-graph",
                         className="graph",
                         style={'height': '400px', 'width': '100%'}
                     )
                 ], className="col-6 sub-graph"),
                 html.Div([
                     dcc.Graph(
-                        id="category-graph", 
+                        id="category-graph",
                         className="graph",
                         style={'height': '400px', 'width': '100%'}
                     )
                 ], className="col-6 sub-graph")
-            ], className="row")
+            ], className="row charts-row")
         ], className="col-9 main-content")
     ], className="row")
 ])

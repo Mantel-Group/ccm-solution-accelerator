@@ -32,7 +32,6 @@ layout = html.Div([
             html.Li([
                 "To report issues or request features: ",
                 html.A("Create a GitHub Issue", href="https://github.com/mantel-group/ccm-solution-accelerator/issues/new", target="_blank"),
-                " - Please provide detailed information about the issue including steps to reproduce, expected behavior, and any error messages."
             ])
         ])
     ]),

@@ -5,14 +5,15 @@ def get_layout():
         html.Nav([
             html.Div([
                 html.A([
-    html.Img(
-        src="/assets/mantel.png", 
-        alt="Mantel Logo", 
-        height="30",
-        className="d-inline-block align-text-top me-2"
-    ),
-    "Mantel - Continuous Controls Monitoring"
-], className="navbar-brand", href="/"),
+                    html.Img(
+                        src="/assets/mantel.png",
+                        alt="Mantel Logo",
+                        height="30",
+                        className="d-inline-block align-text-top me-3"
+                    ),
+                    "CCM ",
+                    html.I("Accelerator")
+                ], className="navbar-brand mx-auto fs-4", href="/"),
                 html.Button(
                     html.Span(className="navbar-toggler-icon"),
                     className="navbar-toggler",
@@ -30,8 +31,8 @@ def get_layout():
                         html.Li(html.A("Metrics", className="nav-link", href="/metrics"), className="nav-item"),
                         html.Li(html.A("About", className="nav-link", href="/about"), className="nav-item"),
                     ], className="navbar-nav me-auto mb-2 mb-lg-0")
-                ], className="collapse navbar-collapse", id="navbarNav")
-            ], className="container-fluid")
+                ], className="collapse navbar-collapse ms-4", id="navbarNav")
+            ], className="container-fluid justify-content-center")
         ], className="navbar navbar-expand-lg navbar-dark bg-dark fixed-top"),
 
         html.Div(id="alert-message", className="alert alert-danger d-none mt-5 pt-4", role="alert"),

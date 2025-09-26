@@ -27,7 +27,7 @@ body {
 /* Headings */
 h1, h2, h3, h4, h5, h6 {
   font-weight: 600;
-  color: var(--text-primary);
+  color: #002A41;
   margin-bottom: var(--spacing-md);
 }
 
@@ -38,20 +38,19 @@ h1 {
 
 h2 {
   font-size: 2rem;
-  color: var(--navbar-bg-color);
   margin-bottom: var(--spacing-lg);
+  padding-top: var(--spacing-lg);
 }
 
 h5 {
   font-size: 1rem;
   font-weight: 600;
   margin-bottom: var(--spacing-sm);
-  color: var(--text-primary);
 }
 
 /* Navbar styling */
 .navbar {
-  background-color: var(--navbar-bg-color) !important;
+  background: linear-gradient(to right, #002A41, #1E5E82) !important;
   box-shadow: var(--shadow-medium);
   border-bottom: 3px solid #0066cc;
 }
@@ -59,6 +58,16 @@ h5 {
 .navbar-brand {
   font-weight: 600;
   font-size: 1.1rem;
+}
+
+.navbar-nav .nav-link {
+  color: #91B8CE !important;
+}
+
+.navbar-nav .nav-link:hover,
+.navbar-nav .nav-link:focus,
+.navbar-nav .nav-link.active {
+  color: #ffffff !important;
 }
 
 /* Main container */
@@ -92,7 +101,6 @@ h5 {
 }
 
 .filter-sidebar h5 {
-  color: var(--navbar-bg-color);
   font-size: 0.9rem;
   font-weight: 600;
   text-transform: uppercase;
@@ -138,12 +146,24 @@ h5 {
 
 /* Sub-graphs */
 .sub-graph {
-  height: 400px;
+  height: 450px;
   background-color: var(--card-bg-color);
   border-radius: var(--border-radius);
   padding: var(--spacing-md);
   margin-bottom: var(--spacing-md);
   box-shadow: var(--shadow-light);
+  overflow: hidden;
+}
+
+/* Charts row specific spacing */
+.charts-row {
+  display: flex !important;
+  gap: 22px;
+}
+
+.charts-row .col-6 {
+  flex: 1;
+  max-width: none;
 }
 
 /* Row and column spacing */
@@ -157,20 +177,65 @@ h5 {
   padding-right: 10px;
 }
 
+/* Override for charts row to prevent overflow */
+.charts-row {
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
+.charts-row > [class*="col-"] {
+  padding-left: 11px !important;
+  padding-right: 11px !important;
+}
+
 /* Responsive adjustments */
 @media (max-width: 768px) {
   .filter-sidebar {
     position: static;
     margin-bottom: var(--spacing-md);
   }
-  
+
   h2 {
     font-size: 1.5rem;
   }
-  
+
   .container {
     padding-left: 15px;
     padding-right: 15px;
+  }
+
+  /* Stack columns vertically on small screens */
+  .row > .col-3,
+  .row > .col-9 {
+    flex: 0 0 100% !important;
+    max-width: 100% !important;
+  }
+
+  /* Filter sidebar on top for mobile */
+  .row > .col-3.filter-sidebar {
+    order: -1;
+    margin-bottom: var(--spacing-md);
+  }
+
+  /* Charts stack vertically on mobile */
+  .charts-row {
+    flex-direction: column !important;
+    gap: var(--spacing-md) !important;
+  }
+
+  .charts-row .col-6 {
+    flex: none !important;
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  /* Reduce chart heights on mobile */
+  .sub-graph {
+    height: 350px;
+  }
+
+  .executive-overview-container {
+    margin-bottom: var(--spacing-md);
   }
 }
 
@@ -207,6 +272,13 @@ h5 {
   background-color: #f8f9fa !important;
 }
 
+/* Plotly chart titles */
+.js-plotly-plot .plotly .gtitle {
+  text-anchor: middle !important;
+  font-weight: bold !important;
+  fill: #002A41 !important;
+}
+
 /* Custom spacing utilities */
 .p-3 {
   padding: var(--spacing-md) !important;
@@ -228,7 +300,6 @@ h5 {
 .chart-title {
   font-size: 1.1rem;
   font-weight: 600;
-  color: var(--navbar-bg-color);
   margin-bottom: var(--spacing-md);
   text-align: center;
 }

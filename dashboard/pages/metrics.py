@@ -57,7 +57,7 @@ layout = html.Div([
         # Graph on right (9 columns wide)
         html.Div([
             html.Div(id="graph-executive-overview2")
-        ], className="col-9 border")
+        ], className="col-9 border p-3")
     ], className="row")
 ])
 
