@@ -12,6 +12,10 @@ sources:
       - name: crowdstrike_vulnerabilities_remediation
       - name: domain_scan_results
       - name: okta_users
+      - name: okta_devices
+      - name: okta_device_users
       - name: knowbe4_enrollments
+      - name: knowbe4_psts
+      - name: knowbe4_pst_recipients
       - name: tenable_vulnerabilities
       - name: tenable_assets

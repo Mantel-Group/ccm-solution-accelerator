@@ -4,21 +4,23 @@
 
 | Metric ID                | Description      | Executive | Management |
 |--------------------------|------------------|-----------|------------|
-| **IM01** | Identity - % of users active | ![yes](https://img.shields.io/badge/YES-0000F0) | ![yes](https://img.shields.io/badge/YES-0000F0) |
-| **IM02** | Identity - % of users without expired passwords | ![yes](https://img.shields.io/badge/YES-0000F0) | ![yes](https://img.shields.io/badge/YES-0000F0) |
-| **VM01** | Vulnerability - % of systems without Exploitable Patchable OS Vulnerabilities | ![yes](https://img.shields.io/badge/YES-0000F0) | ![yes](https://img.shields.io/badge/YES-0000F0) |
-| **VM02** | Vulnerability - % of systems without Exploitable Patchable Application Vulnerabilities | ![yes](https://img.shields.io/badge/YES-0000F0) | ![yes](https://img.shields.io/badge/YES-0000F0) |
-| **VM03** | Vulnerability - % of systems without Exploitable Non Patchable OS Vulnerabilities | ![yes](https://img.shields.io/badge/YES-0000F0) | ![yes](https://img.shields.io/badge/YES-0000F0) |
-| **VM04** | Vulnerability - % of systems without Exploitable Non Patchable Application Vulnerabilities | ![yes](https://img.shields.io/badge/YES-0000F0) | ![yes](https://img.shields.io/badge/YES-0000F0) |
-| **VM05** | Vulnerability - % of systems without Non Exploitable Patchable OS Vulnerabilities | ![yes](https://img.shields.io/badge/YES-0000F0) | ![yes](https://img.shields.io/badge/YES-0000F0) |
-| **VM06** | Vulnerability - % of systems without Non Exploitable Patchable Application Vulnerabilities | ![yes](https://img.shields.io/badge/YES-0000F0) | ![yes](https://img.shields.io/badge/YES-0000F0) |
-| **VM07** | Vulnerability - % of systems without Non Exploitable Non Patchable OS Vulnerabilities | ![yes](https://img.shields.io/badge/YES-0000F0) | ![yes](https://img.shields.io/badge/YES-0000F0) |
-| **VM08** | Vulnerability - % of systems without Non Exploitable Non Patchable Application Vulnerabilities | ![yes](https://img.shields.io/badge/YES-0000F0) | ![yes](https://img.shields.io/badge/YES-0000F0) |
-| **US01** | User Security - % of users who have completed Security Awareness training in the last 12 months | ![yes](https://img.shields.io/badge/YES-0000F0) | ![yes](https://img.shields.io/badge/YES-0000F0) |
-| **US02** | User Security - % of users who have completed Security Awareness training | ![yes](https://img.shields.io/badge/YES-0000F0) | ![yes](https://img.shields.io/badge/YES-0000F0) |
-| **OP01** | Operations - % of hosts detected in the last 30 days | ![yes](https://img.shields.io/badge/YES-0000F0) | ![yes](https://img.shields.io/badge/YES-0000F0) |
-| **NS01** | Network Security - % of domains with insecure ports | ![yes](https://img.shields.io/badge/YES-0000F0) | ![yes](https://img.shields.io/badge/YES-0000F0) |
-| **NS02** | Network Security - % of domains with valid TLS certificates | ![yes](https://img.shields.io/badge/YES-0000F0) | ![yes](https://img.shields.io/badge/YES-0000F0) |
+| **IM01** | Identity - % of users active | True | True |
+| **IM02** | Identity - % of users without expired passwords | True | True |
+| **VM01** | Vulnerability - % of systems without Exploitable Patchable OS Vulnerabilities | True | True |
+| **VM02** | Vulnerability - % of systems without Exploitable Patchable Application Vulnerabilities | True | True |
+| **VM03** | Vulnerability - % of systems without Exploitable Non Patchable OS Vulnerabilities | True | True |
+| **VM04** | Vulnerability - % of systems without Exploitable Non Patchable Application Vulnerabilities | True | True |
+| **VM05** | Vulnerability - % of systems without Non Exploitable Patchable OS Vulnerabilities | True | True |
+| **VM06** | Vulnerability - % of systems without Non Exploitable Patchable Application Vulnerabilities | True | True |
+| **VM07** | Vulnerability - % of systems without Non Exploitable Non Patchable OS Vulnerabilities | True | True |
+| **VM08** | Vulnerability - % of systems without Non Exploitable Non Patchable Application Vulnerabilities | True | True |
+| **US01** | User Security - % of users who have completed Security Awareness training in the last 12 months | True | True |
+| **US02** | User Security - % of users who have completed Security Awareness training | True | True |
+| **OP01** | Operations - % of hosts detected in the last 30 days | True | True |
+| **NS01** | Network Security - % of domains with insecure ports | True | True |
+| **NS02** | Network Security - % of domains with valid TLS certificates | True | True |
+| **US03** | User Security - % of phishing emails that was not clicked | TRUE | TRUE |
+| **OP02** | Operations - % of devices managed | True | True |
 
 
 ## Metric Details
@@ -34,7 +36,7 @@ Dormant identity accounts pose a significant threat to information security as t
 |-------------------|--------------------------------------------------------------------------------------|
 | **Metric id**     | `IM01`                                                               |
 | **SLO**           | 90.0% - 95.0% |
-| **Weight**        | 0.5                                                                    |
+| **Weight**        | 0.8                                                                    |
 | **Resource Type** | user                                                             |
 
 #### Frameworks
@@ -123,7 +125,7 @@ Application vulnerabilities pose a significant risk and need to be remediated as
 | Attribute         | Value                                                                                |
 |-------------------|--------------------------------------------------------------------------------------|
 | **Metric id**     | `VM02`                                                               |
-| **SLO**           | 90.0% - 50.0% |
+| **SLO**           | 90.0% - 95.0% |
 | **Weight**        | 0.5                                                                    |
 | **Resource Type** | system                                                             |
 
@@ -156,7 +158,7 @@ Exploitable Operating System vulnerabilities pose a significant risk. Unpatchabl
 | Attribute         | Value                                                                                |
 |-------------------|--------------------------------------------------------------------------------------|
 | **Metric id**     | `VM03`                                                               |
-| **SLO**           | 80.0% - 95.0% |
+| **SLO**           | 90.0% - 95.0% |
 | **Weight**        | 0.8                                                                    |
 | **Resource Type** | system                                                             |
 
@@ -211,7 +213,7 @@ Exploitable Application vulnerabilities pose a significant risk. Unpatchable vul
 | Attribute         | Value                                                                                |
 |-------------------|--------------------------------------------------------------------------------------|
 | **Metric id**     | `VM04`                                                               |
-| **SLO**           | 95.0% - 90.0% |
+| **SLO**           | 90.0% - 95.0% |
 | **Weight**        | 0.5                                                                    |
 | **Resource Type** | system                                                             |
 
@@ -267,8 +269,8 @@ Non-exploitable vulnerabilities pose a low risk and need to be remediated per or
 | Attribute         | Value                                                                                |
 |-------------------|--------------------------------------------------------------------------------------|
 | **Metric id**     | `VM05`                                                               |
-| **SLO**           | 90.0% - 20.0% |
-| **Weight**        | 0.8                                                                    |
+| **SLO**           | 90.0% - 95.0% |
+| **Weight**        | 0.5                                                                    |
 | **Resource Type** | system                                                             |
 
 #### Frameworks
@@ -311,8 +313,8 @@ Non-exploitable vulnerabilities pose a low risk and need to be remediated per or
 | Attribute         | Value                                                                                |
 |-------------------|--------------------------------------------------------------------------------------|
 | **Metric id**     | `VM06`                                                               |
-| **SLO**           | 95.0% - 20.0% |
-| **Weight**        | 0.8                                                                    |
+| **SLO**           | 90.0% - 95.0% |
+| **Weight**        | 0.5                                                                    |
 | **Resource Type** | system                                                             |
 
 #### Frameworks
@@ -344,8 +346,8 @@ Non-exploitable vulnerabilities pose a low risk and need to be remediated per or
 | Attribute         | Value                                                                                |
 |-------------------|--------------------------------------------------------------------------------------|
 | **Metric id**     | `VM07`                                                               |
-| **SLO**           | 95.0% - 20.0% |
-| **Weight**        | 0.8                                                                    |
+| **SLO**           | 90.0% - 95.0% |
+| **Weight**        | 0.2                                                                    |
 | **Resource Type** | system                                                             |
 
 #### Frameworks
@@ -388,8 +390,8 @@ Non-exploitable vulnerabilities pose a low risk and need to be remediated per or
 | Attribute         | Value                                                                                |
 |-------------------|--------------------------------------------------------------------------------------|
 | **Metric id**     | `VM08`                                                               |
-| **SLO**           | 95.0% - 20.0% |
-| **Weight**        | 0.8                                                                    |
+| **SLO**           | 90.0% - 95.0% |
+| **Weight**        | 0.2                                                                    |
 | **Resource Type** | system                                                             |
 
 #### Frameworks
@@ -485,7 +487,7 @@ Regular monitoring of host activity ensures that security tools maintain visibil
 | **Metric id**     | `OP01`                                                               |
 | **SLO**           | 95.0% - 99.0% |
 | **Weight**        | 0.2                                                                    |
-| **Resource Type** | device                                                             |
+| **Resource Type** | system                                                             |
 
 #### Frameworks
 
@@ -552,5 +554,56 @@ Ensuring SSL certificates are valid will ensure that data encryption controls st
 |CIS 8.1||Data Protection||
 |NIST CSF v2.0||PROTECT (PR)|PR.DS-02: The confidentiality, integrity, and availability of data-in-transit are protected|
 |ISO27001:2022||8 Technological controls|Rules for the effective use of cryptography, including cryptographic key management, shall be defined and implemented.|
+
+
+
+### US03 - User Security - % of phishing emails that was not clicked
+
+#### Description
+
+Measures the percentage of simulated phishing emails delivered to users within the last 30 days that were not clicked, indicating current security awareness and user resilience against social engineering attacks. Calculated as (Delivered emails - Clicked emails) / Delivered emails × 100 for the trailing 30-day period, a higher percentage demonstrates better security posture and training effectiveness. This metric is critical as phishing remains the primary attack vector for data breaches and ransomware - users who don&#39;t click phishing links prevent credential theft, malware installation, and initial access for attackers.
+
+#### Meta Data
+
+| Attribute         | Value                                                                                |
+|-------------------|--------------------------------------------------------------------------------------|
+| **Metric id**     | `US03`                                                               |
+| **SLO**           | 90.0% - 95.0% |
+| **Weight**        | 0.5                                                                    |
+| **Resource Type** | user                                                             |
+
+#### Frameworks
+
+|**Framework**|**Ref**|**Domain**|**Control**|
+|--|--|--|--|
+|CIS 8.1||Security Awareness and Skills Training||
+|NIST CSF v1.1||PROTECT (PR)|All users are informed and trained|
+|NIST CSF v2.0||PROTECT (PR)|PR.AT-01: Personnel are provided with awareness and training so that they possess the knowledge and skills to perform general tasks with cybersecurity risks in mind|
+|PCI DSS v4.0||Requirement 12: Support information security with organizational policies and programs|12.6.3.1 Security awareness training includes awareness of threats and vulnerabilities that could impact the security of the CDE, including but not limited to: • Phishing and related attacks.  • Social engineering. Applicability Notes See Requirement 5.4.1 for guidance on the difference between technical and automated controls to detect and protect users from phishing attacks, and this requirement for providing users security awareness training about phishing and social engineering. These are two separate and distinct requirements, and one is not met by implementing controls required by the other one. This requirement is a best practice until 31 March 2025, after which it will be required and must be fully considered during a PCI DSS assessment.|
+|PCI DSS v4.0||Requirement 5: Protect All Systems and Networks from Malicious Software|5.4.1 Processes and automated mechanisms are in place to detect and protect personnel against phishing attacks.  Applicability Notes This requirement applies to the automated mechanism. It is not intended that the systems and services providing such automated mechanisms (such as email servers) are brought into scope for PCI DSS. The focus of this requirement is on protecting personnel with access to system components in-scope for PCI DSS. Meeting this requirement for technical and automated controls to detect and protect personnel against phishing is not the same as Requirement 12.6.3.1 for security awareness training. Meeting this requirement does not also meet the requirement for providing personnel with security awareness training, and vice versa. This requirement is a best practice until 31 March 2025, after which it will be required and must be fully considered during a PCI DSS assessment.|
+
+
+
+### OP02 - Operations - % of devices managed
+
+#### Description
+
+Measures the percentage of active devices (seen within the last 30 days) that are under management and security controls via Okta Device Management. Calculated as (Managed devices / Total active devices) × 100, where managed devices have a management status of &#39;MANAGED&#39; in Okta. Only includes devices with activity in the last 30 days to exclude decommissioned or inactive devices. Managed devices have enforced security policies, verified configurations, and can be remotely monitored or remediated if compromised. A higher percentage indicates better security posture as unmanaged devices represent significant blind spots - they lack visibility into compliance status, cannot be remotely secured or wiped if lost, and may bypass critical security controls like encryption, patching, or MFA enforcement. This metric is fundamental to zero-trust security models where device trust verification is essential before granting access to sensitive resources. Reported per user (by email address) with device type details including platform, manufacturer, and model.
+
+#### Meta Data
+
+| Attribute         | Value                                                                                |
+|-------------------|--------------------------------------------------------------------------------------|
+| **Metric id**     | `OP02`                                                               |
+| **SLO**           | 90.0% - 95.0% |
+| **Weight**        | 0.5                                                                    |
+| **Resource Type** | system                                                             |
+
+#### Frameworks
+
+|**Framework**|**Ref**|**Domain**|**Control**|
+|--|--|--|--|
+|CIS 8.1||Secure Configuration of Enterprise Assets and Software||
+|ISO27001:2022||8 Technological controls|Configurations, including security configurations, of hardware, software, services and networks shall be established, documented, implemented, monitored and reviewed.|
 
 

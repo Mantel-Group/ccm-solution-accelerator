@@ -27,6 +27,16 @@ data "aws_iam_policy_document" "lambda_policy" {
   }
 
   statement {
+    sid    = "NewLambdaPermissions"
+    effect = "Allow"
+    actions = [
+      "lambda:InvokeFunctionUrl",
+      "lambda:InvokeFunction",
+    ]
+    resources = ["*"] # Scoping to a single Lambda will result in a Terraform Race condition.
+  }
+
+  statement {
     sid       = "AllowEc2DescribeENIs"
     effect    = "Allow"
     actions   = ["ec2:DescribeNetworkInterfaces"]
@@ -54,7 +64,7 @@ data "archive_file" "lambda_zip" {
 resource "aws_lambda_function" "dashboard_redirect" {
   function_name = "${var.tenant}-dashboard-redirect"
   role          = aws_iam_role.lambda_role.arn
-  runtime       = "python3.12"
+  runtime       = "python3.13"
   handler       = "main.lambda_handler"
 
   filename         = data.archive_file.lambda_zip.output_path
