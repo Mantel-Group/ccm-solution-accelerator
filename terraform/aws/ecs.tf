@@ -15,6 +15,11 @@ resource "aws_ecs_task_definition" "collector" {
     {
       name  = "ccm-${var.tenant}-task-collector"
       image = "${data.aws_caller_identity.current.account_id}.dkr.ecr.${var.region}.amazonaws.com/collector-${var.tenant}:latest"
+      essential = true
+      cpu = 0
+      mountPoints      = []
+      systemControls   = []
+      volumesFrom      = []
       secrets = concat(
         [
           for name, _ in aws_ssm_parameter.secrets : {
@@ -68,9 +73,9 @@ resource "aws_ecs_task_definition" "collector" {
         },
         {
           name = "_TRIGGER_REBUILD"
-          value = md5(join("", [
-            for f in fileset("${path.module}/../../collector", "**/*") : filemd5("${path.module}/../../collector/${f}")
-          ]))
+          value = md5(join("", 
+            [for f in fileset("${path.module}/../../collector", "**/*") : filemd5("${path.module}/../../collector/${f}")],
+          ))
         }
       ],
       logConfiguration = {
@@ -99,6 +104,11 @@ resource "aws_ecs_task_definition" "datapipeline" {
     {
       name  = "ccm-${var.tenant}-task-datapipeline"
       image = "${data.aws_caller_identity.current.account_id}.dkr.ecr.${var.region}.amazonaws.com/datapipeline-${var.tenant}:latest"
+      essential = true
+      cpu = 0
+      mountPoints      = []
+      systemControls   = []
+      volumesFrom      = []
       secrets = [
         {
           name      = "POSTGRES_PASSWORD"
@@ -144,9 +154,9 @@ resource "aws_ecs_task_definition" "datapipeline" {
         },
         {
           name = "_TRIGGER_REBUILD"
-          value = md5(join("", [
-            for f in fileset("${path.module}/../../datapipeline", "**/*") : filemd5("${path.module}/../../datapipeline/${f}")
-          ]))
+          value = md5(join("", 
+            [for f in fileset("${path.module}/../../datapipeline", "**/*") : filemd5("${path.module}/../../datapipeline/${f}")],
+          ))
         }
       ]
       logConfiguration = {
@@ -175,6 +185,11 @@ resource "aws_ecs_task_definition" "dashboard" {
     {
       name  = "ccm-${var.tenant}-task-dashboard"
       image = "${data.aws_caller_identity.current.account_id}.dkr.ecr.${var.region}.amazonaws.com/dashboard-${var.tenant}:latest"
+      essential = true
+      cpu = 0
+      mountPoints      = []
+      systemControls   = []
+      volumesFrom      = []
       secrets = [
         {
           name      = "POSTGRES_PASSWORD"
@@ -208,9 +223,9 @@ resource "aws_ecs_task_definition" "dashboard" {
         },
         {
           name = "_TRIGGER_REBUILD"
-          value = md5(join("", [
-            for f in fileset("${path.module}/../../dashboard", "**/*") : filemd5("${path.module}/../../dashboard/${f}")
-          ]))
+          value = md5(join("", 
+            [for f in fileset("${path.module}/../../dashboard", "**/*") : filemd5("${path.module}/../../dashboard/${f}")],
+          ))
         }
       ],
       portMappings = [{
