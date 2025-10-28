@@ -215,7 +215,7 @@ resource "aws_ecs_task_definition" "dashboard" {
         },
         {
           name      = "POSTGRES_PORT"
-          valueFrom = tostring(aws_db_instance.database.port)
+          value     = tostring(aws_db_instance.database.port)
         },
         {
           name  = "_TENANT"
