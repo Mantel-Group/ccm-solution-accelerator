@@ -557,7 +557,7 @@ Ensuring SSL certificates are valid will ensure that data encryption controls st
 
 
 
-### US03 - User Security - % of phishing emails that was not clicked
+### US03 - User Security - % of phishing emails that were not clicked
 
 #### Description
 
