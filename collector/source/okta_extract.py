@@ -66,7 +66,7 @@ class Source:
         else:
             self.collector.write_blank('okta_users'       , self._okta_users({}))
             self.collector.write_blank('okta_factors'     , self._okta_factors({},''))
-            self.collector.write_blank('okta_devices'     , self._okta_devices({}))
+            self.collector.write_blank('okta_devices'     , self._okta_devices({}, ''))
             self.collector.write_blank('okta_device_users', self._okta_device_users({}, ''))
             self.collector.write_blank('okta_logs'        , self._logs({}))
     
