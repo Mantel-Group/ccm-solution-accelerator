@@ -250,9 +250,11 @@ class Source:
             "device_id": device_id,
             "created": datetime.datetime.strptime(device_user_data.get("created"), "%Y-%m-%dT%H:%M:%S.000Z") if device_user_data.get("created") else pd.NaT,
             "managementstatus": device_user_data.get("managementStatus"),
+            "screenlocktype": device_user_data.get("screenLockType"),
             "user_id": device_user_data.get("user", {}).get("id") if device_user_data.get("user") else None,
             "user_status": device_user_data.get("user", {}).get("status") if device_user_data.get("user") else None,
             "user_displayname": device_user_data.get("user", {}).get("displayName") if device_user_data.get("user") else None,
+            "user_profile_login": device_user_data.get("user", {}).get("profile",{}).get("login") if device_user_data.get("user") else None,
             "user_created": datetime.datetime.strptime(device_user_data.get("user", {}).get("created"), "%Y-%m-%dT%H:%M:%S.000Z") if device_user_data.get("user", {}).get("created") else pd.NaT,
         }
 
