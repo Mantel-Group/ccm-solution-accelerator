@@ -21,18 +21,20 @@ logging.basicConfig(
 class Source:
     def __init__(self, C):
         self.collector = C
+        self.device_ids = []
+        self.device_users_flatten = []
 
         if C.env({
                 'OKTA_DOMAIN': None,
                 'OKTA_TOKEN': None,
             }):
-        
+
             self.client = OktaClient({
                 'orgUrl': os.environ['OKTA_DOMAIN'],
                 'token': os.environ['OKTA_TOKEN']
             })
 
-            # == users    
+            # == users
             logging.info("Starting user extraction...")
             asyncio.run(self.users())
 
@@ -43,17 +45,30 @@ class Source:
             # logging.info("Starting concurrent factors extraction...")
             # asyncio.run(self.factors_concurrent())
             # logging.info(f"Extracted factors for {len(self.flatten)} total factors")
-            
+
             # self.collector.store_df('okta_factors', pd.DataFrame(self.flatten))
             # self.collector.write_df('okta_factors')
+
+            # Device users extraction
+            if self.device_ids:
+                logging.info("Starting device users extraction...")
+                asyncio.run(self.device_users_concurrent())
+                if self.device_users_flatten:
+                    self.collector.store_df('okta_device_users', pd.DataFrame(self.device_users_flatten))
+                    self.collector.write_df('okta_device_users')
+                else:
+                    self.collector.write_blank('okta_device_users', self._okta_device_users({}, ''))
+            else:
+                self.collector.write_blank('okta_device_users', self._okta_device_users({}, ''))
 
             logging.info("Starting logs extraction...")
             self.logs()
         else:
-            self.collector.write_blank('okta_users'   , self._okta_users({}))
-            self.collector.write_blank('okta_factors' , self._okta_factors({},''))
-            self.collector.write_blank('okta_devices' , self._okta_devices({},''))
-            self.collector.write_blank('okta_logs'    , self._logs({}))
+            self.collector.write_blank('okta_users'       , self._okta_users({}))
+            self.collector.write_blank('okta_factors'     , self._okta_factors({},''))
+            self.collector.write_blank('okta_devices'     , self._okta_devices({}, ''))
+            self.collector.write_blank('okta_device_users', self._okta_device_users({}, ''))
+            self.collector.write_blank('okta_logs'        , self._logs({}))
     
     def is_rate_limit_error(self, exception):
         """Detect if the exception is a rate limit error"""
@@ -229,7 +244,143 @@ class Source:
             "resourceid": device.get("resourceId"),
             "resourcealternateid": device.get("resourceAlternateId"),
         }
-    
+
+    def _okta_device_users(self, device_user_data, device_id):
+        return {
+            "device_id": device_id,
+            "created": datetime.datetime.strptime(device_user_data.get("created"), "%Y-%m-%dT%H:%M:%S.000Z") if device_user_data.get("created") else pd.NaT,
+            "managementstatus": device_user_data.get("managementStatus"),
+            "screenlocktype": device_user_data.get("screenLockType"),
+            "user_id": device_user_data.get("user", {}).get("id") if device_user_data.get("user") else None,
+            "user_status": device_user_data.get("user", {}).get("status") if device_user_data.get("user") else None,
+            "user_displayname": device_user_data.get("user", {}).get("displayName") if device_user_data.get("user") else None,
+            "user_profile_login": device_user_data.get("user", {}).get("profile",{}).get("login") if device_user_data.get("user") else None,
+            "user_created": datetime.datetime.strptime(device_user_data.get("user", {}).get("created"), "%Y-%m-%dT%H:%M:%S.000Z") if device_user_data.get("user", {}).get("created") else pd.NaT,
+        }
+
+    async def extract_device_users_with_retry(self, device_id, max_retries=3):
+        """Extract device users for a device with exponential backoff"""
+        for attempt in range(max_retries):
+            try:
+                logging.debug(f"Extracting device users for device {device_id} (attempt {attempt + 1}/{max_retries})")
+
+                request, error = await self.client.get_request_executor().create_request(
+                    method='GET',
+                    url=f'/api/v1/devices/{device_id}/users',
+                    body={},
+                    headers={}
+                )
+
+                if error:
+                    logging.error(f"Error creating device users request for device {device_id}: {error}")
+                    if self.is_rate_limit_error(Exception(str(error))):
+                        wait_time = (2 ** attempt) + random.random()
+                        logging.warning(f"Rate limit in API response for device {device_id}. Retrying in {wait_time:.2f} seconds")
+                        await asyncio.sleep(wait_time)
+                        continue
+                    else:
+                        raise Exception(f"API error: {error}")
+
+                response, error = await self.client.get_request_executor().execute(request, None)
+
+                if error:
+                    logging.error(f"Error executing device users request for device {device_id}: {error}")
+                    if self.is_rate_limit_error(Exception(str(error))):
+                        wait_time = (2 ** attempt) + random.random()
+                        logging.warning(f"Rate limit in API response for device {device_id}. Retrying in {wait_time:.2f} seconds")
+                        await asyncio.sleep(wait_time)
+                        continue
+                    else:
+                        raise Exception(f"API error: {error}")
+
+                device_users_data = response.get_body()
+                device_user_records = []
+
+                if device_users_data:
+                    next_url = None
+
+                    while True:
+                        for device_user in device_users_data:
+                            device_user_records.append(self._okta_device_users(device_user, device_id))
+
+                        # Handle pagination by checking Link header
+                        headers = response.get_headers()
+                        if headers and 'Link' in headers:
+                            link_header = ';'.join(headers.getall('Link'))
+                            next_match = re.search(r'<([^>]+)>;\s*rel="next"', link_header)
+                            if next_match:
+                                next_url = next_match.group(1)
+                                if next_url.startswith('http'):
+                                    parsed = urlparse(next_url)
+                                    next_url = parsed.path + ('?' + parsed.query if parsed.query else '')
+
+                                # Fetch next page
+                                request, error = await self.client.get_request_executor().create_request(
+                                    method='GET',
+                                    url=next_url,
+                                    body={},
+                                    headers={}
+                                )
+
+                                if error:
+                                    logging.error(f"Pagination error for device {device_id}: {error}")
+                                    break
+
+                                response, error = await self.client.get_request_executor().execute(request, None)
+
+                                if error:
+                                    logging.error(f"Pagination error for device {device_id}: {error}")
+                                    break
+
+                                device_users_data = response.get_body()
+                            else:
+                                break
+                        else:
+                            break
+
+                logging.debug(f"Successfully extracted {len(device_user_records)} device users for device {device_id}")
+                return device_user_records
+
+            except Exception as e:
+                # Check for rate limit specific exceptions
+                if self.is_rate_limit_error(e):
+                    wait_time = (2 ** attempt) + random.random()
+                    logging.warning(f"Rate limit encountered for device {device_id}. Retrying in {wait_time:.2f} seconds")
+                    await asyncio.sleep(wait_time)
+                else:
+                    # For non-rate limit errors, log and re-raise on last attempt
+                    logging.error(f"Error extracting device users for device {device_id} (attempt {attempt + 1}): {e}")
+                    if attempt == max_retries - 1:
+                        logging.error(f"Failed to extract device users for device {device_id} after {max_retries} attempts")
+                        return []
+                    else:
+                        # Wait briefly before retry for non-rate-limit errors
+                        await asyncio.sleep(1)
+
+        # If all retries fail
+        logging.error(f"Failed to extract device users for device {device_id} after {max_retries} attempts")
+        return []
+
+    async def device_users_concurrent(self):
+        """Concurrently extract device users for all devices with controlled concurrency"""
+        # Limit concurrent requests to avoid overwhelming the API
+        semaphore = asyncio.Semaphore(5)  # Max 5 concurrent requests
+
+        async def limited_extract(device_id):
+            async with semaphore:
+                return await self.extract_device_users_with_retry(device_id)
+
+        tasks = [limited_extract(device_id) for device_id in self.device_ids]
+        results = await asyncio.gather(*tasks, return_exceptions=True)
+
+        # Flatten results, logging exceptions
+        self.device_users_flatten = []
+        for i, device_user_records in enumerate(results):
+            if isinstance(device_user_records, Exception):
+                logging.error(f"Failed to extract device users for device {self.device_ids[i]}: {device_user_records}")
+            else:
+                self.device_users_flatten.extend(device_user_records)
+
     async def devices(self):
         flatten_df = []
         next_url = '/api/v1/devices'
@@ -289,13 +440,16 @@ class Source:
             logging.error(f"Unexpected error fetching devices: {e}")
             self.collector.write_blank('okta_devices', self._okta_devices({}))
             return
-        
+
+        # Store device IDs for later use by device_users extraction
+        self.device_ids = [d['id'] for d in flatten_df if d.get('id')]
+
         if flatten_df:
             self.collector.store_df('okta_devices', pd.DataFrame(flatten_df))
             logging.info(f"Successfully processed {len(flatten_df)} total devices")
         else:
             self.collector.write_blank('okta_devices', self._okta_devices({}))
-            
+
         self.collector.write_df('okta_devices')
 
     def _logs(self, log):

@@ -191,6 +191,9 @@ def update_graph(pathname, selected_business_unit, selected_team, selected_locat
 
     df['rag'] = df.apply(lambda row: "red" if row['compliance'] == 0 else "green" if row['compliance'] == 1 else "amber", axis = 1)
 
+    # Format compliance: show integers as-is, decimals with one decimal place
+    df['compliance'] = df['compliance'].apply(lambda x: str(int(x)) if x in [0, 1] else f"{x:.1f}")
+
     table = dash_table.DataTable(
         data=df.to_dict(orient="records"),
         columns=[
@@ -276,7 +279,7 @@ def update_graph(pathname, selected_business_unit, selected_team, selected_locat
             {
                 'if': {
                     'column_id': 'compliance',
-                    'filter_query': 'rag = "amber"',
+                    'filter_query': '{rag} = "amber"',
                 },
                 'backgroundColor': COLOURS['categories']['amber'],
                 'color': "#000000"
