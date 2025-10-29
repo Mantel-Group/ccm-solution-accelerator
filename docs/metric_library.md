@@ -19,7 +19,7 @@
 | **OP01** | Operations - % of hosts detected in the last 30 days | True | True |
 | **NS01** | Network Security - % of domains with insecure ports | True | True |
 | **NS02** | Network Security - % of domains with valid TLS certificates | True | True |
-| **US03** | User Security - % of phishing emails that was not clicked | TRUE | TRUE |
+| **US03** | User Security - % of phishing emails that was not clicked | True | True |
 | **OP02** | Operations - % of devices managed | True | True |
 
 
