@@ -6,7 +6,7 @@ botocore
 sqlalchemy
 psycopg[binary]
 pytenable
-okta
+okta==3.0.0
 azure-identity
 azure-storage-blob
 crowdstrike-falconpy
