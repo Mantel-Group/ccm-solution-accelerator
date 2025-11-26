@@ -36,10 +36,10 @@ class Source:
 
             # == users
             logging.info("Starting user extraction...")
-            asyncio.run(self.users())
+            self.users()
 
             logging.info("Starting device extraction...")
-            asyncio.run(self.devices())
+            self.devices()
 
             # # Concurrent factors extraction
             # logging.info("Starting concurrent factors extraction...")
@@ -201,28 +201,145 @@ class Source:
             "profile_country_code"          : getattr(getattr(user, "profile", None), "country_code", None),
         }
 
-    async def users(self):
+    def _clean_user_profile(self, user_data):
+        """Clean user profile data to handle empty strings that violate Pydantic validation"""
+        if user_data and isinstance(user_data, dict):
+            profile = user_data.get('profile')
+            if profile and isinstance(profile, dict):
+                # Remove or set to None any string fields that are empty
+                # This prevents Pydantic validation errors for fields with min_length constraints
+                for key, value in list(profile.items()):
+                    if isinstance(value, str) and value == '':
+                        profile[key] = None
+        return user_data
+
+    def users(self):
+        """Synchronous version using requests directly to avoid Pydantic validation issues"""
         flatten_df = []
 
-        self.users = []
-        users, resp, err = await self.client.list_users()
-        if not err:
-            while True:
-                for user in users:
-                    self.users.append(user.id)  # to be used by factors a bit later
-                    flatten_df.append(self._okta_users(user))
+        try:
+            domain = os.environ['OKTA_DOMAIN'].rstrip('/')
+            token = os.environ['OKTA_TOKEN']
 
-                if resp.has_next():
-                    users, err = await resp.next()
-                else:
+            url = f"{domain}/api/v1/users"
+            headers = {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                'Authorization': f'SSWS {token}'
+            }
+
+            self.users = []
+
+            while url:
+                logging.debug(f"Fetching users from: {url}")
+
+                response = requests.get(url, headers=headers)
+
+                if response.status_code == 429:
+                    rate_limit_reset = response.headers.get('X-Rate-Limit-Reset')
+                    if rate_limit_reset:
+                        wait_time = int(rate_limit_reset) - int(time.time()) + 1
+                        logging.warning(f"Rate limit hit. Waiting {wait_time} seconds...")
+                        time.sleep(wait_time)
+                        continue
+                    else:
+                        time.sleep(60)
+                        continue
+
+                if response.status_code != 200:
+                    logging.error(f"Error fetching users: {response.status_code} - {response.text}")
                     break
-        else:
-            logging.error(f"Error fetching users: {err}")
-            self.collector.write_blank('okta_users'   , self._okta_users({}))
-            return
-        
-        self.collector.store_df('okta_users', pd.DataFrame(flatten_df))
-        self.collector.write_df('okta_users')
+
+                try:
+                    users_data = response.json()
+                except ValueError as e:
+                    logging.error(f"Failed to parse JSON response: {e}")
+                    break
+
+                if not users_data or not isinstance(users_data, list):
+                    logging.info("No more users found or invalid data format")
+                    break
+
+                for user_data in users_data:
+                    if user_data and isinstance(user_data, dict):
+                        # Clean the user data before processing
+                        user_data = self._clean_user_profile(user_data)
+
+                        # Create a simple object to pass to _okta_users
+                        class UserObject:
+                            def __init__(self, data):
+                                self._data = data
+                                self.id = data.get('id')
+                                self.status = data.get('status')
+                                self.created = data.get('created')
+                                self.activated = data.get('activated')
+                                self.status_changed = data.get('statusChanged')
+                                self.last_login = data.get('lastLogin')
+                                self.last_updated = data.get('lastUpdated')
+                                self.password_changed = data.get('passwordChanged')
+
+                                # Type info
+                                self.type = type('obj', (object,), {'id': data.get('type', {}).get('id')})() if data.get('type') else None
+
+                                # Profile info
+                                profile_data = data.get('profile', {})
+                                self.profile = type('obj', (object,), {
+                                    'login': profile_data.get('login'),
+                                    'first_name': profile_data.get('firstName'),
+                                    'last_name': profile_data.get('lastName'),
+                                    'nick_name': profile_data.get('nickName'),
+                                    'display_name': profile_data.get('displayName'),
+                                    'email': profile_data.get('email'),
+                                    'secondEmail': profile_data.get('secondEmail'),
+                                    'profile_url': profile_data.get('profileUrl'),
+                                    'preferred_language': profile_data.get('preferredLanguage'),
+                                    'user_type': profile_data.get('userType'),
+                                    'organization': profile_data.get('organization'),
+                                    'title': profile_data.get('title'),
+                                    'division': profile_data.get('division'),
+                                    'department': profile_data.get('department'),
+                                    'cost_center': profile_data.get('costCenter'),
+                                    'employee_number': profile_data.get('employeeNumber'),
+                                    'mobile_phone': profile_data.get('mobilePhone'),
+                                    'primary_phone': profile_data.get('primaryPhone'),
+                                    'street_address': profile_data.get('streetAddress'),
+                                    'city': profile_data.get('city'),
+                                    'state': profile_data.get('state'),
+                                    'zip_code': profile_data.get('zipCode'),
+                                    'country_code': profile_data.get('countryCode'),
+                                })() if data.get('profile') else None
+
+                        user_obj = UserObject(user_data)
+                        self.users.append(user_obj.id)
+                        flatten_df.append(self._okta_users(user_obj))
+                    else:
+                        logging.warning(f"Skipping invalid user entry: {user_data}")
+
+                logging.info(f"Processed {len(users_data)} users")
+
+                # Handle pagination
+                next_url = None
+                if 'Link' in response.headers:
+                    link_header = response.headers['Link']
+                    next_match = re.search(r'<([^>]+)>;\s*rel="next"', link_header)
+                    if next_match:
+                        next_url = next_match.group(1)
+                        logging.debug(f"Found next page URL: {next_url}")
+
+                url = next_url
+
+            if flatten_df:
+                self.collector.store_df('okta_users', pd.DataFrame(flatten_df))
+                logging.info(f"Successfully processed {len(flatten_df)} total users")
+            else:
+                self.collector.write_blank('okta_users', self._okta_users({}))
+
+            self.collector.write_df('okta_users')
+
+        except Exception as e:
+            logging.error(f"Error extracting users: {e}")
+            self.collector.write_blank('okta_users', self._okta_users({}))
+            self.collector.write_df('okta_users')
 
     def _okta_devices(self, device):
         return {
@@ -389,64 +506,74 @@ class Source:
             else:
                 self.device_users_flatten.extend(device_user_records)
 
-    async def devices(self):
+    def devices(self):
+        """Synchronous version using requests directly"""
         flatten_df = []
-        next_url = '/api/v1/devices'
-        
+
         try:
-            while next_url:
-                # Use generic request executor since list_devices() doesn't exist
-                request, error = await self.client.get_request_executor().create_request(
-                    method='GET',
-                    url=next_url,
-                    body={},
-                    headers={}
-                )
-                
-                if error:
-                    logging.error(f"Error creating devices request: {error}")
-                    self.collector.write_blank('okta_devices', self._okta_devices({}))
-                    return
-                    
-                response, error = await self.client.get_request_executor().execute(request, None)
-                
-                if error:
-                    logging.error(f"Error executing devices request: {error}")
-                    self.collector.write_blank('okta_devices', self._okta_devices({}))
-                    return
-                    
-                # Get the response body
-                devices_data = response.get_body()
-                
-                if devices_data:
-                    for device in devices_data:
-                        flatten_df.append(self._okta_devices(device))
-                    
-                    # Handle pagination by checking Link header
-                    next_url = None
-                    headers = response.get_headers()
-                    
-                    if headers and 'Link' in headers:             
-                        link_header = ';'.join(headers.getall('Link'))
-                        # Parse Link header to find next page URL
-                        # Format: <url>; rel="next", <url>; rel="prev"
-                        next_match = re.search(r'<([^>]+)>;\s*rel="next"', link_header)
-                        if next_match:
-                            next_url = next_match.group(1)
-                            # Extract just the path if it's a full URL
-                            if next_url.startswith('http'):
-                                parsed = urlparse(next_url)
-                                next_url = parsed.path + ('?' + parsed.query if parsed.query else '')
-                            logging.debug(f"Found next page URL: {next_url}")
-                    
-                    logging.debug(f"Processed {len(devices_data)} devices, next_url: {next_url}")
-                else:
-                    logging.warning("No devices found in response")
+            domain = os.environ['OKTA_DOMAIN'].rstrip('/')
+            token = os.environ['OKTA_TOKEN']
+
+            url = f"{domain}/api/v1/devices"
+            headers = {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                'Authorization': f'SSWS {token}'
+            }
+
+            while url:
+                logging.debug(f"Fetching devices from: {url}")
+
+                response = requests.get(url, headers=headers)
+
+                if response.status_code == 429:
+                    rate_limit_reset = response.headers.get('X-Rate-Limit-Reset')
+                    if rate_limit_reset:
+                        wait_time = int(rate_limit_reset) - int(time.time()) + 1
+                        logging.warning(f"Rate limit hit. Waiting {wait_time} seconds...")
+                        time.sleep(wait_time)
+                        continue
+                    else:
+                        time.sleep(60)
+                        continue
+
+                if response.status_code != 200:
+                    logging.error(f"Error fetching devices: {response.status_code} - {response.text}")
                     break
-                
+
+                try:
+                    devices_data = response.json()
+                except ValueError as e:
+                    logging.error(f"Failed to parse JSON response: {e}")
+                    break
+
+                if not devices_data or not isinstance(devices_data, list):
+                    logging.info("No more devices found or invalid data format")
+                    break
+
+                for device in devices_data:
+                    if device and isinstance(device, dict):
+                        flatten_df.append(self._okta_devices(device))
+                    else:
+                        logging.warning(f"Skipping invalid device entry: {device}")
+
+                logging.info(f"Processed {len(devices_data)} devices")
+
+                # Handle pagination
+                next_url = None
+                if 'Link' in response.headers:
+                    link_header = response.headers['Link']
+                    next_match = re.search(r'<([^>]+)>;\s*rel="next"', link_header)
+                    if next_match:
+                        next_url = next_match.group(1)
+                        logging.debug(f"Found next page URL: {next_url}")
+
+                url = next_url
+
         except Exception as e:
             logging.error(f"Unexpected error fetching devices: {e}")
             self.collector.write_blank('okta_devices', self._okta_devices({}))
+            self.collector.write_df('okta_devices')
             return
 
         # Store device IDs for later use by device_users extraction
