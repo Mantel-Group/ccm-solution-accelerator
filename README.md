@@ -56,6 +56,16 @@ The following environment variables are used to control the database
 | Username        | `POSTGRES_USERNAME` |                 |                 |
 | Password        | `POSTGRES_PASSWORD` |                 |                 |
 
+## Collector configuration
+
+The collector runs source plugins concurrently to reduce total collection time. By default it uses **3 threads**. Set `COLLECTOR_THREADS` in your `.env` file to change this:
+
+```
+COLLECTOR_THREADS=5
+```
+
+**DuckDB limitation:** DuckDB does not support concurrent writes from multiple connections. When `DUCKDB_FILE` is configured, the collector automatically falls back to a single thread regardless of the `COLLECTOR_THREADS` value, and logs a warning to that effect. If parallel collection is important to you, use PostgreSQL or BigQuery as the target instead.
+
 ## Deployment Options
 
 There are two options to deploy the solution:

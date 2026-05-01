@@ -14,6 +14,7 @@ import traceback
 import duckdb
 from alert import Alert
 import warnings
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 # Suppress DuckDB engine warning about index reflection
 warnings.filterwarnings("ignore", message="duckdb-engine doesn't yet support reflection on indices")
@@ -481,44 +482,59 @@ class UploadDuckDB:
             logging.info("DuckDB connection pool closed")
 
 if __name__=='__main__':
-    C = Collector()
+    load_dotenv('../.env')
     start_time = datetime.datetime.now()
 
     src = 'source'
 
-    counter = [ 0, 0]
-    table_status = []
+    max_workers = int(os.environ.get('COLLECTOR_THREADS', 3))
+    if 'DUCKDB_FILE' in os.environ and os.environ['DUCKDB_FILE']:
+        if max_workers != 1:
+            logging.warning("DuckDB does not support concurrent writes. Limiting to 1 thread regardless of COLLECTOR_THREADS.")
+        max_workers = 1
 
-    # -- loop through all plugins in the source folder
-    for p  in sorted([f for f in os.listdir(src) if f.endswith('.py')]):
-        counter[0] += 1
-        logging.info(f"Source plugin - {src}/{p}")
+    logging.info(f"Running collector with {max_workers} thread(s).")
 
-        m = p.replace('.py','')
+    def run_plugin(p: str) -> tuple[str, str, str | None]:
+        C = Collector()
+        m = p.replace('.py', '')
         try:
             getattr(importlib.import_module(f"{src}.{m}"), "Source")(C)
-            counter[1] += 1
-            table_status.append({"Module": m, "Status": "OK"})
-        except Exception as e:
-            logging.error(f"Error running source: {m}\n{traceback.format_exc()}")
-            C.alert.send(f"Error running source: {m}\n{traceback.format_exc()}", "ERROR")
-            table_status.append({"Module": m, "Status": "FAILED"})
+            return m, "OK", None
+        except Exception:
+            return m, "FAILED", traceback.format_exc()
+        finally:
+            C.cleanup()
+
+    plugins = sorted([f for f in os.listdir(src) if f.endswith('.py')])
+    table_status = []
+    alert_instance = Alert()
+
+    with ThreadPoolExecutor(max_workers=max_workers) as executor:
+        futures = {executor.submit(run_plugin, p): p for p in plugins}
+        for future in as_completed(futures):
+            m, status, tb = future.result()
+            table_status.append({"Module": m, "Status": status})
+            if status == "FAILED":
+                logging.error(f"Error running source: {m}\n{tb}")
+                alert_instance.send(f"Error running source: {m}\n{tb}", "ERROR")
+
+    table_status.sort(key=lambda x: x["Module"])
+    counter_total = len(table_status)
+    counter_ok = sum(1 for t in table_status if t["Status"] == "OK")
 
     time_elapsed = datetime.datetime.now() - start_time
     logging.info("------------------------------------------")
     for i in table_status:
         logging.info(f"{i['Module']:<20} - {i['Status']}")
-    
-    # Clean up and upload any remaining data
-    C.cleanup()
-    
-    if counter[0] == counter[1]:
+
+    if counter_total == counter_ok:
         logging.info("SUCCESS")
         logging.info("------------------------------------------")
-        C.alert.send('Collector completed with {} / {} - elapsed time {} seconds'.format(counter[1],counter[0],int(time_elapsed.total_seconds())),'SUCCESS')
+        alert_instance.send(f"Collector completed with {counter_ok} / {counter_total} - elapsed time {int(time_elapsed.total_seconds())} seconds", "SUCCESS")
         exit(0)
     else:
         logging.fatal("FAILURE")
         logging.info("------------------------------------------")
-        C.alert.send('Collector completed with {} / {} - elapsed time {} seconds'.format(counter[1],counter[0],int(time_elapsed.total_seconds())),'ERROR')
+        alert_instance.send(f"Collector completed with {counter_ok} / {counter_total} - elapsed time {int(time_elapsed.total_seconds())} seconds", "ERROR")
         exit(1)
