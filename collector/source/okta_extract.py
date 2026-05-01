@@ -66,10 +66,42 @@ class Source:
         else:
             self.collector.write_blank('okta_users'       , self._okta_users({}))
             self.collector.write_blank('okta_factors'     , self._okta_factors({},''))
-            self.collector.write_blank('okta_devices'     , self._okta_devices({}, ''))
+            self.collector.write_blank('okta_devices'     , self._okta_devices({}))
             self.collector.write_blank('okta_device_users', self._okta_device_users({}, ''))
             self.collector.write_blank('okta_logs'        , self._logs({}))
     
+    def _make_request(self, url: str, headers: dict, params: dict = None) -> requests.Response:
+        """Make a GET request with connection retry and header-driven 429 backoff."""
+        max_connect_retries = 2
+        max_rate_limit_retries = 5
+        rate_limit_retries = 0
+        connect_attempts = 0
+
+        while True:
+            try:
+                response = requests.get(url, headers=headers, params=params, timeout=30)
+            except (requests.exceptions.ConnectionError, requests.exceptions.Timeout, requests.exceptions.ChunkedEncodingError) as e:
+                connect_attempts += 1
+                if connect_attempts <= max_connect_retries:
+                    logging.warning(f"Connection error (attempt {connect_attempts}/{max_connect_retries + 1}). Retrying in 5s: {e}")
+                    time.sleep(5)
+                    continue
+                logging.error(f"Connection failed after {max_connect_retries + 1} attempts: {e}")
+                raise
+
+            if response.status_code == 429:
+                rate_limit_retries += 1
+                if rate_limit_retries <= max_rate_limit_retries:
+                    reset = response.headers.get('X-Rate-Limit-Reset')
+                    wait_time = max(int(reset) - int(time.time()) + 1, 1) if reset else 60
+                    logging.warning(f"Rate limit hit. Waiting {wait_time}s (attempt {rate_limit_retries}/{max_rate_limit_retries}).")
+                    time.sleep(wait_time)
+                    continue
+                logging.error(f"Rate limit retries exhausted after {max_rate_limit_retries} attempts for {url}")
+                raise Exception(f"Okta rate limit retries exhausted for {url}")
+
+            return response
+
     def is_rate_limit_error(self, exception):
         """Detect if the exception is a rate limit error"""
         error_str = str(exception).lower()
@@ -233,22 +265,11 @@ class Source:
             while url:
                 logging.debug(f"Fetching users from: {url}")
 
-                response = requests.get(url, headers=headers)
-
-                if response.status_code == 429:
-                    rate_limit_reset = response.headers.get('X-Rate-Limit-Reset')
-                    if rate_limit_reset:
-                        wait_time = int(rate_limit_reset) - int(time.time()) + 1
-                        logging.warning(f"Rate limit hit. Waiting {wait_time} seconds...")
-                        time.sleep(wait_time)
-                        continue
-                    else:
-                        time.sleep(60)
-                        continue
+                response = self._make_request(url, headers)
 
                 if response.status_code != 200:
                     logging.error(f"Error fetching users: {response.status_code} - {response.text}")
-                    break
+                    raise RuntimeError(f"Okta API returned {response.status_code} fetching users")
 
                 try:
                     users_data = response.json()
@@ -340,6 +361,7 @@ class Source:
             logging.error(f"Error extracting users: {e}")
             self.collector.write_blank('okta_users', self._okta_users({}))
             self.collector.write_df('okta_users')
+            raise
 
     def _okta_devices(self, device):
         return {
@@ -524,22 +546,11 @@ class Source:
             while url:
                 logging.debug(f"Fetching devices from: {url}")
 
-                response = requests.get(url, headers=headers)
-
-                if response.status_code == 429:
-                    rate_limit_reset = response.headers.get('X-Rate-Limit-Reset')
-                    if rate_limit_reset:
-                        wait_time = int(rate_limit_reset) - int(time.time()) + 1
-                        logging.warning(f"Rate limit hit. Waiting {wait_time} seconds...")
-                        time.sleep(wait_time)
-                        continue
-                    else:
-                        time.sleep(60)
-                        continue
+                response = self._make_request(url, headers)
 
                 if response.status_code != 200:
                     logging.error(f"Error fetching devices: {response.status_code} - {response.text}")
-                    break
+                    raise RuntimeError(f"Okta API returned {response.status_code} fetching devices")
 
                 try:
                     devices_data = response.json()
@@ -574,7 +585,7 @@ class Source:
             logging.error(f"Unexpected error fetching devices: {e}")
             self.collector.write_blank('okta_devices', self._okta_devices({}))
             self.collector.write_df('okta_devices')
-            return
+            raise
 
         # Store device IDs for later use by device_users extraction
         self.device_ids = [d['id'] for d in flatten_df if d.get('id')]
@@ -782,23 +793,13 @@ class Source:
             
             while url:
                 logging.debug(f"Fetching logs from: {url}")
-                
-                response = requests.get(url, headers=headers, params=params if url == f"{domain}/api/v1/logs" else None)
-                
-                if response.status_code == 429:
-                    rate_limit_reset = response.headers.get('X-Rate-Limit-Reset')
-                    if rate_limit_reset:
-                        wait_time = int(rate_limit_reset) - int(time.time()) + 1
-                        logging.warning(f"Rate limit hit. Waiting {wait_time} seconds...")
-                        time.sleep(wait_time)
-                        continue
-                    else:
-                        time.sleep(60)
-                        continue
-                
+
+                response = self._make_request(url, headers, params=params)
+                params = None
+
                 if response.status_code != 200:
                     logging.error(f"Error fetching logs: {response.status_code} - {response.text}")
-                    break
+                    raise RuntimeError(f"Okta API returned {response.status_code} fetching logs")
                 
                 try:
                     logs_data = response.json()
@@ -827,20 +828,20 @@ class Source:
                         logging.debug(f"Found next page URL: {next_url}")
                 
                 url = next_url
-                params = None
-            
+
             if flatten_df:
                 self.collector.store_df('okta_logs', pd.DataFrame(flatten_df))
                 logging.info(f"Successfully processed {len(flatten_df)} total logs")
             else:
                 self.collector.write_blank('okta_logs', self._logs({}))
-                
+
             self.collector.write_df('okta_logs')
-            
+
         except Exception as e:
             logging.error(f"Error extracting logs: {e}")
             self.collector.write_blank('okta_logs', self._logs({}))
             self.collector.write_df('okta_logs')
+            raise
 
 # == we create the __main__ bit to allow the plugin to be manually run when needed.
 if __name__ == '__main__':

@@ -12,5 +12,11 @@ export POSTGRES_PORT=5432
 unset DUCKDB_FILE
 unset DUCKDB_SCHEMA
 
+#cd ../dashboard-dash
+#python3 app.py
+
+cd ../datapipeline
+dbt run --target pg
+
 cd ../dashboard
-python3 app.py
+streamlit run app.py

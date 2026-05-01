@@ -8,6 +8,9 @@ WITH crowdstrike_unremediated_vulns AS (
     LEFT JOIN {{ source('source','crowdstrike_vulnerabilities_remediation') }} r
         ON r.id = v.id
 
+    WHERE
+        v.status IN ('open', 'reopen')
+
         {% if kwargs.is_operating_system == true %}
         AND (
             r.action LIKE 'Update Apple Mac OS%' OR
@@ -20,9 +23,6 @@ WITH crowdstrike_unremediated_vulns AS (
             r.action LIKE 'Install patch for Microsoft Windows%'
         )
         {% endif %}
-
-    WHERE 
-        v.status IN ('open', 'reopen')
 
         {% if kwargs.has_patch == true %}
             AND v.has_patch IS TRUE
@@ -42,7 +42,6 @@ WITH crowdstrike_unremediated_vulns AS (
         AND {{ days_to_today('v.published_on', 'CURRENT_DATE') }} > {{ kwargs.published }}
         {% endif %}
 
-        AND r.id IS NULL
     GROUP BY v.agent_id
 ), unremediated_vulns_tenable AS (
     SELECT 

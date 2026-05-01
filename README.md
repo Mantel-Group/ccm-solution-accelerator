@@ -22,7 +22,8 @@ By automating data collection, transformation, and reporting, our CCM Dashboard 
 
 * `collector` - the Docker instance to download source data
 * `datapipeline` - the Docker instance with the dbt job to generate the metics
-* `dashboard` - The basic Python Dash dashboard
+* `dashboard` - The Streamlit dashboard
+* `dashboard-dash` - The original Python Dash dashboard (kept for reference)
 * `terraform` - The terraform infrastructure deployer
 * `powerbi` - A basic PowerBI dashboard is included if you'd like to use that instead.
 

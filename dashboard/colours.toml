@@ -1,0 +1,9 @@
+[light]
+red   = "#dc3545"
+amber = "#fd7e14"
+green = "#198754"
+
+[dark]
+red   = "#e57373"
+amber = "#ffb74d"
+green = "#81c784"

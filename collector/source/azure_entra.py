@@ -22,10 +22,16 @@ class Source:
 
             if self.users().empty:
                 self.collector.write_blank('azure_entra_users', self._users({}))
+            else:
+                self.collector.write_df('azure_entra_users')
             if self.signin().empty:
                 self.collector.write_blank('azure_entra_users_signin', self._signin({}))
+            else:
+                self.collector.write_df('azure_entra_users_signin')
             if self.audit_logs().empty:
                 self.collector.write_blank('azure_audit_logs', self._audit_logs({}))
+            else:
+                self.collector.write_df('azure_audit_logs')
         else:
             self.collector.write_blank('azure_entra_users', self._users({}))
             self.collector.write_blank('azure_entra_users_signin', self._signin({}))
@@ -56,7 +62,6 @@ class Source:
         if data:
             df = pd.DataFrame([self._users(item) for item in data ])
             self.collector.store_df('azure_entra_users', df)
-            self.collector.write_df('azure_entra_users')
             return df
         else:
             return pd.DataFrame()
@@ -74,7 +79,6 @@ class Source:
         if data:
             df = pd.DataFrame([self._signin(item) for item in data ])
             self.collector.store_df('azure_entra_users_signin', df)
-            self.collector.write_df('azure_entra_users_signin')
             return df
         else:
             return pd.DataFrame()
@@ -93,7 +97,6 @@ class Source:
         if data:
             df = pd.DataFrame([self._audit_logs(item) for item in data ])
             self.collector.store_df('azure_audit_logs', df)
-            self.collector.write_df('azure_audit_logs')
             return df
         else:
             return pd.DataFrame()
@@ -113,33 +116,38 @@ class Source:
         }
         res = s.post(auth_url, data=auth_data, headers=auth_headers)
 
-        # Auth failed, raise exception with the response
         if res.status_code != 200:
-            logging.error(f"{res.status_code} - {res.json().get("error_description")}")
-            return None
+            logging.error(f"Azure auth failed: {res.status_code} - {res.json().get('error_description')}")
+            raise RuntimeError(f"Azure authentication returned {res.status_code}")
 
         access_token = res.json().get("access_token")
         s.headers = {"Authorization": f"Bearer {access_token}", "cache-control": "no-cache"}
         return s
 
-    def _paginate(self,graph_url,auth_url = 'https://graph.microsoft.com'):
+    def _paginate(self, graph_url, auth_url='https://graph.microsoft.com'):
         logging.info(f"=> {graph_url}")
         session = self._authenticate(auth_url)
-        if session:
-            data = []
-            while True:
-                ret = session.get(graph_url)
-                z = ret.json()
-                data += z.get('value',[])
-                if z.get('@odata.nextLink'):
-                    graph_url = z.get('@odata.nextLink')
-                else:
-                    break
+        data = []
+        while True:
+            ret = session.get(graph_url)
+            if ret.status_code == 429:
+                wait = int(ret.headers.get('Retry-After', 60))
+                logging.warning(f"Azure rate limit hit. Waiting {wait}s.")
+                import time
+                time.sleep(wait)
+                continue
+            if ret.status_code != 200:
+                logging.error(f"Azure API error: {ret.status_code} - {ret.text}")
+                raise RuntimeError(f"Azure Graph API returned {ret.status_code}")
+            z = ret.json()
+            data += z.get('value', [])
+            if z.get('@odata.nextLink'):
+                graph_url = z.get('@odata.nextLink')
+            else:
+                break
 
-            logging.info(f" - {len(data)} records")
-            return data
-        else:
-            return None
+        logging.info(f" - {len(data)} records")
+        return data
 
 if __name__ == '__main__':
     load_dotenv()

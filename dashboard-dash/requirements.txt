@@ -1,8 +1,7 @@
 pip
 python-dotenv
-streamlit
+dash
 pandas
 sqlalchemy
 psycopg[binary]
-plotly
-duckdb-engine
+gunicorn

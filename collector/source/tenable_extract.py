@@ -21,15 +21,25 @@ class Source:
             'TENABLE_ACCESS_KEY' : None,
             'TENABLE_SECRET_KEY' : None,
         }):
-            self.tio = TenableIO(
-                access_key=os.environ['TENABLE_ACCESS_KEY'],
-                secret_key=os.environ['TENABLE_SECRET_KEY']
-            )
+            try:
+                self.tio = TenableIO(
+                    access_key=os.environ['TENABLE_ACCESS_KEY'],
+                    secret_key=os.environ['TENABLE_SECRET_KEY']
+                )
+            except Exception as e:
+                logging.error(f"Failed to initialise TenableIO client: {e}")
+                self.collector.write_blank('tenable_assets', self._assets({}))
+                self.collector.write_blank('tenable_vulnerabilities', self._vulnerabilities({}))
+                raise
 
             if self.assets().empty:
                 self.collector.write_blank('tenable_assets'         , self._assets({})          )
+            else:
+                self.collector.write_df('tenable_assets')
             if self.vulnerabilities().empty:
                 self.collector.write_blank('tenable_vulnerabilities', self._vulnerabilities({}) )
+            else:
+                self.collector.write_df('tenable_vulnerabilities')
             #self.findings()
             #self.was()
         else:
@@ -106,16 +116,17 @@ class Source:
         }
     
     def assets(self):
-        result = []
-        if self.tio:
+        try:
             result = list(self.tio.exports.assets())
+        except Exception as e:
+            logging.error(f"Error fetching Tenable assets: {e}")
+            self.collector.write_blank('tenable_assets', self._assets({}))
+            raise
         if len(result) == 0:
             return pd.DataFrame()
-        else:
-            df = pd.DataFrame([ self._assets(item) for item in result])
-            self.collector.store_df('tenable_assets',df)
-            self.collector.write_df('tenable_assets')
-            return df
+        df = pd.DataFrame([self._assets(item) for item in result])
+        self.collector.store_df('tenable_assets', df)
+        return df
 
 
         #     # "agent_names": item["agent_names"],  # empty list
@@ -192,16 +203,17 @@ class Source:
         }
 
     def vulnerabilities(self):
-        result = [{}]
-        if self.tio:
+        try:
             result = list(self.tio.exports.vulns())
+        except Exception as e:
+            logging.error(f"Error fetching Tenable vulnerabilities: {e}")
+            self.collector.write_blank('tenable_vulnerabilities', self._vulnerabilities({}))
+            raise
         if len(result) == 0:
             return pd.DataFrame()
-        else:
-            df = pd.DataFrame([ self._vulnerabilities(item) for item in result])
-            self.collector.store_df('tenable_vulnerabilities',df)
-            self.collector.write_df('tenable_vulnerabilities')
-            return df
+        df = pd.DataFrame([self._vulnerabilities(item) for item in result])
+        self.collector.store_df('tenable_vulnerabilities', df)
+        return df
 
 # == we create the __main__ bit to allow the plugin to be manually run when needed.
 if __name__ == '__main__':

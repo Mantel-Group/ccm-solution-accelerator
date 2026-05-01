@@ -50,9 +50,19 @@ class Source:
             self.collector.write_blank('knowbe4_psts', self._psts({}))
             self.collector.write_blank('knowbe4_pst_recipients', self._pst_recipients({}, ''))
 
-    def _make_request(self, url, max_retries=5):
+    def _parse_response(self, response):
+        """Unwrap paginated response body. Returns list of records."""
+        body = response.json()
+        if isinstance(body, dict) and 'data' in body:
+            return body['data']
+        if isinstance(body, list):
+            return body
+        logging.error(f"Unexpected response format: {body}")
+        return []
+
+    def _make_request(self, url, max_retries=5, max_connect_retries=2):
         """
-        Make API request with rate limiting and exponential backoff
+        Make API request with rate limiting and exponential backoff.
 
         KnowBe4 API Limits:
         - 4 requests per second
@@ -63,8 +73,7 @@ class Source:
         current_time = time.time()
         time_since_last_request = current_time - self.last_request_time
         if time_since_last_request < self.request_delay:
-            sleep_time = self.request_delay - time_since_last_request
-            time.sleep(sleep_time)
+            time.sleep(self.request_delay - time_since_last_request)
 
         retry_delay = 15  # Start with 15 seconds for 429 errors (burst limit recovery)
 
@@ -74,12 +83,19 @@ class Source:
                 req = requests.get(url, headers=self.headers, timeout=30)
                 req.raise_for_status()
                 return req
+            except (requests.exceptions.ConnectionError, requests.exceptions.Timeout, requests.exceptions.ChunkedEncodingError) as err:
+                if attempt < max_connect_retries:
+                    logging.warning(f"Connection error (attempt {attempt + 1}/{max_connect_retries + 1}). Retrying in 5s: {err}")
+                    time.sleep(5)
+                else:
+                    logging.error(f"Connection failed after {max_connect_retries + 1} attempts for URL: {url}: {err}")
+                    raise
             except requests.exceptions.HTTPError as err:
                 if err.response.status_code == 429:
                     if attempt < max_retries - 1:
-                        logging.warning(f"Rate limit hit (429). Retrying in {retry_delay} seconds... (attempt {attempt + 1}/{max_retries})")
+                        logging.warning(f"Rate limit hit (429). Retrying in {retry_delay}s (attempt {attempt + 1}/{max_retries}).")
                         time.sleep(retry_delay)
-                        retry_delay = min(retry_delay * 2, 300)  # Exponential backoff, max 5 minutes
+                        retry_delay = min(retry_delay * 2, 300)
                     else:
                         logging.error(f"Rate limit exceeded after {max_retries} attempts for URL: {url}")
                         raise
@@ -160,54 +176,57 @@ class Source:
         }
     
     def enrollments(self):
+        logging.info("Starting extraction: knowbe4_enrollments")
         page = 1
         while True:
             try:
-                url = f"{os.environ['KNOWBE4_ENDPOINT']}/v1/training/enrollments?page={page}"
+                url = f"{os.environ['KNOWBE4_ENDPOINT']}/v1/training/enrollments?per_page=500&page={page}"
                 req = self._make_request(url)
                 if req is None:
                     break
             except requests.exceptions.HTTPError as err:
-                logging.critical(f"Something went wrong with knowbe4 : {err}")
+                logging.error(f"API error fetching knowbe4_enrollments page {page}: {err}")
+                raise
+
+            result = self._parse_response(req)
+            if not result:
                 break
 
-            result = req.json()
-            page += 1
-            df = pd.DataFrame([ self._enrollments(item) for item in result ])
+            logging.info(f"Page {page}: retrieved {len(result)} records")
+            df = pd.DataFrame([self._enrollments(item) for item in result])
             self.collector.store_df('knowbe4_enrollments', df)
-
-            if len(result) == 0:
-                break
+            page += 1
 
         self.collector.write_df('knowbe4_enrollments')
-        return self.collector.df.get('knowbe4_enrollments',pd.DataFrame())
+        return self.collector.df.get('knowbe4_enrollments', pd.DataFrame())
 
     def psts(self):
+        logging.info("Starting extraction: knowbe4_psts")
         page = 1
         pst_ids = []
 
         while True:
             try:
-                url = f"{os.environ['KNOWBE4_ENDPOINT']}/v1/phishing/security_tests?page={page}"
+                url = f"{os.environ['KNOWBE4_ENDPOINT']}/v1/phishing/security_tests?per_page=500&page={page}"
                 req = self._make_request(url)
                 if req is None:
                     break
             except requests.exceptions.HTTPError as err:
-                logging.critical(f"Error fetching KnowBe4 PSTs: {err}")
+                logging.error(f"API error fetching knowbe4_psts page {page}: {err}")
+                raise
+
+            result = self._parse_response(req)
+            if not result:
                 break
 
-            result = req.json()
-            page += 1
-
+            logging.info(f"Page {page}: retrieved {len(result)} records")
             for item in result:
                 if item.get("pst_id"):
                     pst_ids.append(item["pst_id"])
 
             df = pd.DataFrame([self._psts(item) for item in result])
             self.collector.store_df('knowbe4_psts', df)
-
-            if len(result) == 0:
-                break
+            page += 1
 
         self.collector.write_df('knowbe4_psts')
         return pst_ids
@@ -217,30 +236,29 @@ class Source:
             logging.info("No PST IDs available for recipient extraction")
             return pd.DataFrame()
 
-        logging.info(f"Extracting recipients for {len(pst_ids)} PSTs")
+        logging.info(f"Starting extraction: knowbe4_pst_recipients ({len(pst_ids)} PSTs)")
 
         for pst_id in pst_ids:
             page = 1
 
             while True:
                 try:
-                    url = f"{os.environ['KNOWBE4_ENDPOINT']}/v1/phishing/security_tests/{pst_id}/recipients?page={page}"
+                    url = f"{os.environ['KNOWBE4_ENDPOINT']}/v1/phishing/security_tests/{pst_id}/recipients?per_page=500&page={page}"
                     req = self._make_request(url)
                     if req is None:
                         break
                 except requests.exceptions.HTTPError as err:
-                    logging.error(f"Error fetching recipients for PST {pst_id}: {err}")
+                    logging.error(f"API error fetching recipients for PST {pst_id} page {page}: {err}")
+                    raise
+
+                result = self._parse_response(req)
+                if not result:
                     break
 
-                result = req.json()
+                logging.info(f"PST {pst_id} page {page}: retrieved {len(result)} records")
+                df = pd.DataFrame([self._pst_recipients(item, pst_id) for item in result])
+                self.collector.store_df('knowbe4_pst_recipients', df)
                 page += 1
-
-                if result:
-                    df = pd.DataFrame([self._pst_recipients(item, pst_id) for item in result])
-                    self.collector.store_df('knowbe4_pst_recipients', df)
-
-                if len(result) == 0:
-                    break
 
             logging.info(f"Completed recipient extraction for PST {pst_id}")
 

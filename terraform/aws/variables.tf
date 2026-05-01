@@ -66,7 +66,7 @@ variable "db_name" {
 variable "db_version" { 
   type        = string
   description = "The Postgres database version to use"
-  default     = "17.4"
+  default     = "18.3"
 }
 
 variable "db_username" {

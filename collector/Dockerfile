@@ -1,4 +1,4 @@
-FROM python:latest
+FROM python:3.12-slim
 
 # Create a non-root user and group
 RUN groupadd -r collector && useradd -r -g collector collector

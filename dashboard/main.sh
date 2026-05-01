@@ -2,4 +2,9 @@
 
 nginx -g "daemon off;" &
 
-gunicorn -w 1 -b 127.0.0.1:8050 app:server
+streamlit run app.py \
+    --server.port 8501 \
+    --server.address 127.0.0.1 \
+    --server.headless true \
+    --server.enableCORS false \
+    --server.enableXsrfProtection false

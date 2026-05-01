@@ -3,6 +3,7 @@ resource "aws_db_instance" "database" {
   instance_class          = var.db_instance_size
   allocated_storage       = var.db_storage
   engine                  = "postgres"
+  allow_major_version_upgrade = true
   engine_version          = var.db_version
   username                = var.db_username
   password                = aws_ssm_parameter.db_secret.value
@@ -14,12 +15,17 @@ resource "aws_db_instance" "database" {
   tags                    = var.tags
   skip_final_snapshot     = true
   publicly_accessible     = var.db_public_facing
+  apply_immediately       = true
 }
 
 resource "aws_db_parameter_group" "database_pg" {
-  name   = "ccm-${var.tenant}-parameter-group"
-  family = "postgres17"
-  tags   = var.tags
+  name        = "ccm-${var.tenant}-parameter-group"
+  family      = "postgres18"
+  tags        = var.tags
+
+  lifecycle {
+    create_before_destroy = true
+  }
 }
 
 resource "aws_db_subnet_group" "database_sg" {

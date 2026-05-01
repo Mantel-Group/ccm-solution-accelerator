@@ -19,9 +19,11 @@ class Source:
             }):
 
             self.domain_list = os.environ['DOMAINS'].split(',')
-            
+
             if self.scan_domains().empty:
                 self.collector.write_blank('domain_scan_results', self._scan_domain({}))
+            else:
+                self.collector.write_df('domain_scan_results')
 
         else:
             self.collector.write_blank('domain_scan_results', self._scan_domain({}))
@@ -48,7 +50,6 @@ class Source:
             return pd.DataFrame()
         else:
             self.collector.store_df('domain_scan_results', df)
-            self.collector.write_df('domain_scan_results')
             return df
 
     def test_domain(self,domain):

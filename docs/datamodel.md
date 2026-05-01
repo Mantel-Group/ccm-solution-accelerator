@@ -76,6 +76,15 @@ Provides a summary of metrics across different organizational dimensions.
 | `is_latest` | BOOLEAN | Indicates if this is the most recent record for the metric |
 | `etl_timestamp` | TIMESTAMP | Timestamp of ETL processing |
 
+## Standard Collector Columns
+
+Every source table written by the collector automatically includes these two columns:
+
+| Column Name | Data Type | Description |
+|------------|-----------|-------------|
+| `tenancy` | STRING | Identifies the tenant that produced the row. Set via the `TENANCY` environment variable; defaults to `default`. Used to support multiple instances of the same collector writing to a shared database without overwriting each other's data. |
+| `upload_timestamp` | TIMESTAMP | Timestamp of the collector run that produced the row. |
+
 ## Data Processing Notes
 - All tables are materialized as tables in the mart layer
 - Timestamps and dates are automatically captured

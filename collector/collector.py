@@ -217,26 +217,35 @@ class UploadBigQuery:
         """Upload data to BigQuery"""
         if not self.available or df.empty:
             return
-            
+
         try:
             from google.cloud import bigquery
-            
-            # Determine table name
+
             table_name = tag
             table_id = f"{self.project_id}.{self.dataset_id}.{table_name}"
-            
-            logging.info(f"Uploading {len(df)} rows to BigQuery table '{self.dataset_id}.{table_name}'")
-            
-            # Configure the job
+            tenancy = df['tenancy'].iloc[0] if 'tenancy' in df.columns else os.environ.get('TENANCY', 'default')
+
+            logging.info(f"Uploading {len(df)} rows to BigQuery table '{self.dataset_id}.{table_name}' for tenancy '{tenancy}'")
+
+            # Delete existing rows for this tenant (no-op if table doesn't exist yet)
+            try:
+                delete_query = f"DELETE FROM `{table_id}` WHERE tenancy = @tenancy"
+                delete_config = bigquery.QueryJobConfig(
+                    query_parameters=[bigquery.ScalarQueryParameter("tenancy", "STRING", tenancy)]
+                )
+                self.client.query(delete_query, job_config=delete_config).result()
+            except Exception:
+                pass
+
+            # Append new rows (creates table if it doesn't exist)
             job_config = bigquery.LoadJobConfig(
-                write_disposition=bigquery.WriteDisposition.WRITE_TRUNCATE,
+                write_disposition=bigquery.WriteDisposition.WRITE_APPEND,
                 autodetect=True
             )
-            
-            # Upload to BigQuery
+
             job = self.client.load_table_from_dataframe(df, table_id, job_config=job_config)
-            job.result()  # Wait for the job to complete
-            
+            job.result()
+
             logging.info(f"Successfully uploaded {len(df)} rows to BigQuery table '{self.dataset_id}.{table_name}'")
             
         except Exception as e:
@@ -306,28 +315,37 @@ class UploadPostgress:
         if df.empty:
             logging.debug(f"No data to upload for PostgreSQL tag '{tag}'")
             return
-        
+
         try:
             # Ensure schema exists
             self.ensure_schema_exists()
-            
+
             table_name = tag
-            logging.info(f"Uploading {len(df)} rows to PostgreSQL table '{table_name}'")
-            
-            # Upload with chunking for better performance
             schema = os.environ.get('POSTGRES_SCHEMA', 'public')
+            tenancy = df['tenancy'].iloc[0] if 'tenancy' in df.columns else os.environ.get('TENANCY', 'default')
+
+            logging.info(f"Uploading {len(df)} rows to PostgreSQL table '{table_name}' for tenancy '{tenancy}'")
+
+            # Delete existing rows for this tenant (no-op if table doesn't exist yet)
+            with self.engine.connect() as conn:
+                try:
+                    conn.execute(text(f'DELETE FROM "{schema}"."{table_name}" WHERE tenancy = :tenancy'), {'tenancy': tenancy})
+                    conn.commit()
+                except Exception:
+                    conn.rollback()
+
             df.to_sql(
                 table_name,
                 self.engine,
-                if_exists='replace',
+                if_exists='append',
                 index=False,
                 schema=schema,
-                method='multi',  # Use multi-row inserts for better performance
-                chunksize=1000   # Process in chunks of 1000 rows
+                method='multi',
+                chunksize=1000
             )
-            
+
             logging.info(f"Successfully uploaded {len(df)} rows to PostgreSQL table '{table_name}'")
-            
+
         except Exception as e:
             logging.error(f"Failed to upload data to PostgreSQL for tag '{tag}': {e}")
             raise
@@ -402,28 +420,37 @@ class UploadDuckDB:
         if df.empty:
             logging.debug(f"No data to upload for DuckDB tag '{tag}'")
             return
-        
+
         try:
             # Ensure schema exists
             self.ensure_schema_exists()
-            
+
             table_name = tag
-            logging.info(f"Uploading {len(df)} rows to DuckDB table '{table_name}'")
-            
-            # Upload with chunking for better performance
             schema = os.environ.get('DUCKDB_SCHEMA', 'source')
+            tenancy = df['tenancy'].iloc[0] if 'tenancy' in df.columns else os.environ.get('TENANCY', 'default')
+
+            logging.info(f"Uploading {len(df)} rows to DuckDB table '{table_name}' for tenancy '{tenancy}'")
+
+            # Delete existing rows for this tenant (no-op if table doesn't exist yet)
+            with self.engine.connect() as conn:
+                try:
+                    conn.execute(text(f'DELETE FROM "{schema}"."{table_name}" WHERE tenancy = :tenancy'), {'tenancy': tenancy})
+                    conn.commit()
+                except Exception:
+                    conn.rollback()
+
             df.to_sql(
                 table_name,
                 self.engine,
-                if_exists='replace',
+                if_exists='append',
                 index=False,
                 schema=schema,
-                method='multi',  # Use multi-row inserts for better performance
-                chunksize=1000   # Process in chunks of 1000 rows
+                method='multi',
+                chunksize=1000
             )
-            
+
             logging.info(f"Successfully uploaded {len(df)} rows to DuckDB table '{table_name}'")
-            
+
         except Exception as e:
             logging.error(f"Failed to upload data to DuckDB for tag '{tag}': {e}")
             raise

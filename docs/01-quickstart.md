@@ -42,4 +42,4 @@ When your `.env` file is defined, you can run the `sh quickstart.sh` script.  It
 
 ### Access the website
 
-Once the dashboard launches, you will be able to open the URL http://127.0.0.1:8050 to view the dashboard.
+Once the dashboard launches, you will be able to open the URL http://127.0.0.1:8501 to view the dashboard.
