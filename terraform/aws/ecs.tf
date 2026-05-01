@@ -73,9 +73,10 @@ resource "aws_ecs_task_definition" "collector" {
         },
         {
           name = "_TRIGGER_REBUILD"
-          value = md5(join("", 
-            [for f in fileset("${path.module}/../../collector", "**/*") : filemd5("${path.module}/../../collector/${f}")],
-          ))
+          value = md5(join("", concat(
+            [for f in fileset("${path.module}/../../collector", "**/*.py") : filemd5("${path.module}/../../collector/${f}")],
+            [for f in fileset("${path.module}/../../collector", "Dockerfile") : filemd5("${path.module}/../../collector/${f}")],
+          )))
         }
       ],
       logConfiguration = {
@@ -154,9 +155,12 @@ resource "aws_ecs_task_definition" "datapipeline" {
         },
         {
           name = "_TRIGGER_REBUILD"
-          value = md5(join("", 
-            [for f in fileset("${path.module}/../../datapipeline", "**/*") : filemd5("${path.module}/../../datapipeline/${f}")],
-          ))
+          value = md5(join("", concat(
+            [for f in fileset("${path.module}/../../datapipeline", "**/*.py") : filemd5("${path.module}/../../datapipeline/${f}")],
+            [for f in fileset("${path.module}/../../datapipeline", "**/*.sql") : filemd5("${path.module}/../../datapipeline/${f}")],
+            [for f in fileset("${path.module}/../../datapipeline", "**/*.yml") : filemd5("${path.module}/../../datapipeline/${f}")],
+            [for f in fileset("${path.module}/../../datapipeline", "Dockerfile") : filemd5("${path.module}/../../datapipeline/${f}")],
+          )))
         }
       ]
       logConfiguration = {
@@ -223,9 +227,10 @@ resource "aws_ecs_task_definition" "dashboard" {
         },
         {
           name = "_TRIGGER_REBUILD"
-          value = md5(join("", 
-            [for f in fileset("${path.module}/../../dashboard", "**/*") : filemd5("${path.module}/../../dashboard/${f}")],
-          ))
+          value = md5(join("", concat(
+            [for f in fileset("${path.module}/../../dashboard", "**/*.py") : filemd5("${path.module}/../../dashboard/${f}")],
+            [for f in fileset("${path.module}/../../dashboard", "Dockerfile") : filemd5("${path.module}/../../dashboard/${f}")],
+          )))
         }
       ],
       portMappings = [{
