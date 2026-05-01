@@ -428,7 +428,8 @@ class Source:
                     else:
                         raise Exception(f"API error: {error}")
 
-                response, error = await self.client.get_request_executor().execute(request, None)
+                execute_result = await self.client.get_request_executor().execute(request, None)
+                response, raw_body, error = execute_result if len(execute_result) == 3 else (None, None, execute_result[1])
 
                 if error:
                     logging.error(f"Error executing device users request for device {device_id}: {error}")
@@ -440,7 +441,7 @@ class Source:
                     else:
                         raise Exception(f"API error: {error}")
 
-                device_users_data = response.get_body()
+                device_users_data = json.loads(raw_body) if isinstance(raw_body, str) else raw_body
                 device_user_records = []
 
                 if device_users_data:
@@ -451,7 +452,7 @@ class Source:
                             device_user_records.append(self._okta_device_users(device_user, device_id))
 
                         # Handle pagination by checking Link header
-                        headers = response.get_headers()
+                        headers = response.headers if response is not None else None
                         if headers and 'Link' in headers:
                             link_header = ';'.join(headers.getall('Link'))
                             next_match = re.search(r'<([^>]+)>;\s*rel="next"', link_header)
@@ -473,13 +474,13 @@ class Source:
                                     logging.error(f"Pagination error for device {device_id}: {error}")
                                     break
 
-                                response, error = await self.client.get_request_executor().execute(request, None)
+                                execute_result = await self.client.get_request_executor().execute(request, None)
+                                response, raw_body, error = execute_result if len(execute_result) == 3 else (None, None, execute_result[1])
+                                device_users_data = json.loads(raw_body) if isinstance(raw_body, str) else raw_body
 
                                 if error:
                                     logging.error(f"Pagination error for device {device_id}: {error}")
                                     break
-
-                                device_users_data = response.get_body()
                             else:
                                 break
                         else:

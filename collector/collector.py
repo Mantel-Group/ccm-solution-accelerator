@@ -267,6 +267,7 @@ class UploadPostgress:
         self.collector = collector
         self._engine = None
         self._schema_created = False
+        logging.getLogger('sqlalchemy.engine').setLevel(logging.WARNING)
         
     @property
     def engine(self):
