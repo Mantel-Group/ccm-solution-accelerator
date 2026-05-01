@@ -334,6 +334,7 @@ class UploadPostgress:
                 except Exception:
                     conn.rollback()
 
+            dtype_map = self._null_dtype_map(df)
             df.to_sql(
                 table_name,
                 self.engine,
@@ -341,7 +342,8 @@ class UploadPostgress:
                 index=False,
                 schema=schema,
                 method='multi',
-                chunksize=1000
+                chunksize=1000,
+                dtype=dtype_map if dtype_map else None,
             )
 
             logging.info(f"Successfully uploaded {len(df)} rows to PostgreSQL table '{table_name}'")
@@ -349,6 +351,14 @@ class UploadPostgress:
         except Exception as e:
             logging.error(f"Failed to upload data to PostgreSQL for tag '{tag}': {e}")
             raise
+
+    def _null_dtype_map(self, df):
+        from sqlalchemy import types as sa_types
+        return {
+            col: sa_types.NullType()
+            for col in df.columns
+            if df[col].dtype == object and df[col].isna().all()
+        }
     
     def is_available(self):
         """Check if PostgreSQL configuration is available"""

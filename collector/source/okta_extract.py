@@ -275,7 +275,7 @@ class Source:
                     users_data = response.json()
                 except ValueError as e:
                     logging.error(f"Failed to parse JSON response: {e}")
-                    break
+                    raise RuntimeError("Okta API returned non-JSON response fetching users") from e
 
                 if not users_data or not isinstance(users_data, list):
                     logging.info("No more users found or invalid data format")
@@ -556,7 +556,7 @@ class Source:
                     devices_data = response.json()
                 except ValueError as e:
                     logging.error(f"Failed to parse JSON response: {e}")
-                    break
+                    raise RuntimeError("Okta API returned non-JSON response fetching devices") from e
 
                 if not devices_data or not isinstance(devices_data, list):
                     logging.info("No more devices found or invalid data format")
@@ -583,8 +583,11 @@ class Source:
 
         except Exception as e:
             logging.error(f"Unexpected error fetching devices: {e}")
-            self.collector.write_blank('okta_devices', self._okta_devices({}))
-            self.collector.write_df('okta_devices')
+            try:
+                self.collector.write_blank('okta_devices', self._okta_devices({}))
+                self.collector.write_df('okta_devices')
+            except Exception:
+                pass
             raise
 
         # Store device IDs for later use by device_users extraction
@@ -805,7 +808,7 @@ class Source:
                     logs_data = response.json()
                 except ValueError as e:
                     logging.error(f"Failed to parse JSON response: {e}")
-                    break
+                    raise RuntimeError("Okta API returned non-JSON response fetching logs") from e
                 
                 if not logs_data or not isinstance(logs_data, list):
                     logging.info("No more logs found or invalid data format")

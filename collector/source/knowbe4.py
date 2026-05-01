@@ -125,7 +125,7 @@ class Source:
     def _psts(self, item):
         return {
             "campaign_id": item.get("campaign_id"),
-            "pst_id": item.get("pst_id"),
+            "pst_id": int(item["pst_id"]) if item.get("pst_id") not in (None, '') else None,
             "status": item.get("status"),
             "name": item.get("name"),
             "groups": str(item.get("groups")) if item.get("groups") else None,
@@ -150,7 +150,7 @@ class Source:
 
     def _pst_recipients(self, item, pst_id):
         return {
-            "pst_id": pst_id,
+            "pst_id": int(pst_id) if pst_id not in (None, '') else None,
             "recipient_id": item.get("recipient_id"),
             "user_id": item.get("user",{}).get("id"),
             "user_first_name": item.get("user",{}).get("first_name"),

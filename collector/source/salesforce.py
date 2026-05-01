@@ -49,7 +49,6 @@ class Source:
             elif dtype == 'date':
                 y[key] = datetime.datetime.strptime(value, "%Y-%m-%d") if value else None
         df = pd.DataFrame([ y ])
-        print(df)
         self.collector.store_df(table, df)
         self.collector.write_df(table)
 
