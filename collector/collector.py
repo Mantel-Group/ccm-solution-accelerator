@@ -34,6 +34,7 @@ class Collector:
         self.df = {}
         self.schema_created = {}
         self.row_count = {}
+        self.write_errors: list[str] = []
         
         # Initialize database uploaders
         self.postgres_uploader = UploadPostgress(self)
@@ -116,20 +117,23 @@ class Collector:
                 self.postgres_uploader.upload_data(tag, data_to_upload)
             except Exception as e:
                 logging.error(f"Failed to upload PostgreSQL data for tag '{tag}': {e}")
-        
+                self.write_errors.append(f"{tag} (postgres): {e}")
+
         # Upload to DuckDB if available and has data
         if (self.duckdb_uploader.is_available() and not data_to_upload.empty):
             try:
                 self.duckdb_uploader.upload_data(tag, data_to_upload)
             except Exception as e:
                 logging.error(f"Failed to upload DuckDB data for tag '{tag}': {e}")
-        
+                self.write_errors.append(f"{tag} (duckdb): {e}")
+
         # Upload to BigQuery if available and has data
         if (self.bigquery_uploader.is_available() and not data_to_upload.empty):
             try:
                 self.bigquery_uploader.upload_data(tag, data_to_upload)
             except Exception as e:
-                logging.error(f"Failed to upload BigQuery data for tag '{tag}': {e}")
+                logging.error(f"Error uploading to BigQuery for tag '{tag}': {e}")
+                self.write_errors.append(f"{tag} (bigquery): {e}")
         
         # Handle other file outputs only if self.df[tag] has data
         if tag in self.df and not self.df[tag].empty:
@@ -142,6 +146,7 @@ class Collector:
                     logging.info(f"SUCCESS writing Parquet : {path}")
                 except Exception as e:
                     logging.error(f"ERROR writing Parquet : {e}")
+                    self.write_errors.append(f"{tag} (parquet): {e}")
 
             # -- create local json file
             if 'UPLOAD_TARGET' in os.environ:
@@ -152,6 +157,7 @@ class Collector:
                     logging.info(f" - SUCCESS writing JSON : {path}")
                 except Exception as e:
                     logging.error(f" - ERROR writing JSON : {e}")
+                    self.write_errors.append(f"{tag} (json): {e}")
 
         # Clear the dataframe
         if tag in self.df:
@@ -500,6 +506,9 @@ if __name__=='__main__':
         m = p.replace('.py', '')
         try:
             getattr(importlib.import_module(f"{src}.{m}"), "Source")(C)
+            if C.write_errors:
+                detail = "; ".join(C.write_errors)
+                return m, "WRITE_FAILED", detail
             return m, "OK", None
         except Exception:
             return m, "FAILED", traceback.format_exc()
@@ -518,23 +527,29 @@ if __name__=='__main__':
             if status == "FAILED":
                 logging.error(f"Error running source: {m}\n{tb}")
                 alert_instance.send(f"Error running source: {m}\n{tb}", "ERROR")
+            elif status == "WRITE_FAILED":
+                logging.error(f"Write error in source: {m}: {tb}")
+                alert_instance.send(f"Write error in source: {m}: {tb}", "ERROR")
 
     table_status.sort(key=lambda x: x["Module"])
     counter_total = len(table_status)
     counter_ok = sum(1 for t in table_status if t["Status"] == "OK")
+    counter_write_failed = sum(1 for t in table_status if t["Status"] == "WRITE_FAILED")
 
     time_elapsed = datetime.datetime.now() - start_time
     logging.info("------------------------------------------")
     for i in table_status:
         logging.info(f"{i['Module']:<20} - {i['Status']}")
 
+    elapsed = int(time_elapsed.total_seconds())
     if counter_total == counter_ok:
         logging.info("SUCCESS")
         logging.info("------------------------------------------")
-        alert_instance.send(f"Collector completed with {counter_ok} / {counter_total} - elapsed time {int(time_elapsed.total_seconds())} seconds", "SUCCESS")
+        alert_instance.send(f"Collector completed with {counter_ok} / {counter_total} - elapsed time {elapsed} seconds", "SUCCESS")
         exit(0)
     else:
         logging.fatal("FAILURE")
         logging.info("------------------------------------------")
-        alert_instance.send(f"Collector completed with {counter_ok} / {counter_total} - elapsed time {int(time_elapsed.total_seconds())} seconds", "ERROR")
+        summary = f"Collector completed with {counter_ok} / {counter_total} ({counter_write_failed} write failure(s)) - elapsed time {elapsed} seconds"
+        alert_instance.send(summary, "ERROR")
         exit(1)

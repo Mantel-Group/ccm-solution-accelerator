@@ -374,8 +374,8 @@ class Source:
             "profile_manufacturer": device.get("profile", {}).get("manufacturer"),
             "profile_model": device.get("profile", {}).get("model"),
             "profile_osversion": device.get("profile", {}).get("osVersion"),
-            "profile_registered": bool(device.get("profile", {}).get("registered")) if device.get("profile", {}).get("registered") is not None else None,
-            "profile_securehardwarepresent": bool(device.get("profile", {}).get("secureHardwarePresent")) if device.get("profile", {}).get("secureHardwarePresent") is not None else None,
+            "profile_registered": bool(device.get("profile", {}).get("registered")) if device.get("profile", {}).get("registered") is not None else pd.NA,
+            "profile_securehardwarepresent": bool(device.get("profile", {}).get("secureHardwarePresent")) if device.get("profile", {}).get("secureHardwarePresent") is not None else pd.NA,
             "profile_authenticatorappkey": device.get("profile", {}).get("authenticatorAppKey"),
             "profile_serialnumber": device.get("profile", {}).get("serialNumber"),
             "profile_udid": device.get("profile", {}).get("udid"),
@@ -383,11 +383,11 @@ class Source:
             "profile_meid": device.get("profile", {}).get("meid"),
             "profile_sid": device.get("profile", {}).get("sid"),
             "profile_diskencryptiontype": device.get("profile", {}).get("diskEncryptionType"),
-            "profile_integrityjailbreak": bool(device.get("profile", {}).get("integrityJailbreak")) if device.get("profile", {}).get("integrityJailbreak") is not None else None,
+            "profile_integrityjailbreak": bool(device.get("profile", {}).get("integrityJailbreak")) if device.get("profile", {}).get("integrityJailbreak") is not None else pd.NA,
             "profile_tpmpublickeyhash": device.get("profile", {}).get("tpmPublicKeyHash"),
             "resourcetype": device.get("resourceType"),
             "resourcedisplayname_value": device.get("resourceDisplayName", {}).get("value"),
-            "resourcedisplayname_sensitive": bool(device.get("resourceDisplayName", {}).get("sensitive")) if device.get("resourceDisplayName", {}).get("sensitive") is not None else None,
+            "resourcedisplayname_sensitive": bool(device.get("resourceDisplayName", {}).get("sensitive")) if device.get("resourceDisplayName", {}).get("sensitive") is not None else pd.NA,
             "resourceid": device.get("resourceId"),
             "resourcealternateid": device.get("resourceAlternateId"),
         }
@@ -595,7 +595,12 @@ class Source:
         self.device_ids = [d['id'] for d in flatten_df if d.get('id')]
 
         if flatten_df:
-            self.collector.store_df('okta_devices', pd.DataFrame(flatten_df))
+            df = pd.DataFrame(flatten_df)
+            bool_cols = ['profile_registered', 'profile_securehardwarepresent', 'profile_integrityjailbreak', 'resourcedisplayname_sensitive']
+            for col in bool_cols:
+                if col in df.columns:
+                    df[col] = df[col].astype(pd.BooleanDtype())
+            self.collector.store_df('okta_devices', df)
             logging.info(f"Successfully processed {len(flatten_df)} total devices")
         else:
             self.collector.write_blank('okta_devices', self._okta_devices({}))
