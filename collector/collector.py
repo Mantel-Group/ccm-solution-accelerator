@@ -244,10 +244,9 @@ class UploadBigQuery:
             except Exception:
                 pass
 
-            # Append new rows (creates table if it doesn't exist)
             job_config = bigquery.LoadJobConfig(
                 write_disposition=bigquery.WriteDisposition.WRITE_APPEND,
-                autodetect=True
+                schema=self._df_to_bq_schema(df),
             )
 
             job = self.client.load_table_from_dataframe(df, table_id, job_config=job_config)
@@ -258,6 +257,24 @@ class UploadBigQuery:
         except Exception as e:
             logging.error(f"Error uploading to BigQuery for tag '{tag}': {e}")
             
+    def _df_to_bq_schema(self, df):
+        from google.cloud import bigquery
+        fields = []
+        for col, dtype in df.dtypes.items():
+            dtype_str = str(dtype)
+            if 'datetime' in dtype_str:
+                bq_type = 'TIMESTAMP'
+            elif dtype_str in ('bool', 'boolean'):
+                bq_type = 'BOOLEAN'
+            elif dtype_str in ('int64', 'Int64', 'int32', 'Int32'):
+                bq_type = 'INTEGER'
+            elif dtype_str in ('float64', 'Float64', 'float32', 'Float32'):
+                bq_type = 'FLOAT'
+            else:
+                bq_type = 'STRING'
+            fields.append(bigquery.SchemaField(col, bq_type))
+        return fields
+
     def is_available(self):
         """Check if BigQuery configuration is available"""
         return self.available
