@@ -119,12 +119,12 @@ class Source:
             "email"                 : item.get("user",{}).get("email"),
             "first_name"            : item.get("user",{}).get("first_name"),
             "last_name"             : item.get("user",{}).get("last_name"),
-            "id"                    : item.get("user",{}).get("id"),
+            "id"                    : int(item["user"]["id"]) if item.get("user", {}).get("id") not in (None, "") else None,
         }
 
     def _psts(self, item):
         return {
-            "campaign_id": item.get("campaign_id"),
+            "campaign_id": int(item["campaign_id"]) if item.get("campaign_id") not in (None, "") else None,
             "pst_id": int(item["pst_id"]) if item.get("pst_id") not in (None, '') else None,
             "status": item.get("status"),
             "name": item.get("name"),
@@ -133,8 +133,8 @@ class Source:
             "started_at": datetime.datetime.strptime(item["started_at"], "%Y-%m-%dT%H:%M:%S.000Z") if item.get("started_at") else pd.NaT,
             "duration": item.get("duration"),
             "categories": str(item.get("categories")) if item.get("categories") else None,
-            "template_id": item.get("template_id"),
-            "landing_page_id": item.get("landing_page_id"),
+            "template_id": int(item["template_id"]) if item.get("template_id") not in (None, "") else None,
+            "landing_page_id": int(item["landing_page_id"]) if item.get("landing_page_id") not in (None, "") else None,
             "scheduled_count": int(item["scheduled_count"]) if item.get("scheduled_count") not in [None, ""] else None,
             "delivered_count": int(item["delivered_count"]) if item.get("delivered_count") not in [None, ""] else None,
             "opened_count": int(item["opened_count"]) if item.get("opened_count") not in [None, ""] else None,
@@ -151,8 +151,8 @@ class Source:
     def _pst_recipients(self, item, pst_id):
         return {
             "pst_id": int(pst_id) if pst_id not in (None, '') else None,
-            "recipient_id": item.get("recipient_id"),
-            "user_id": item.get("user",{}).get("id"),
+            "recipient_id": int(item["recipient_id"]) if item.get("recipient_id") not in (None, "") else None,
+            "user_id": int(item["user"]["id"]) if item.get("user", {}).get("id") not in (None, "") else None,
             "user_first_name": item.get("user",{}).get("first_name"),
             "user_last_name": item.get("user",{}).get("last_name"),
             "user_email": item.get("user",{}).get("email"),

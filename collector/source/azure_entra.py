@@ -53,8 +53,8 @@ class Source:
             "preferred_language"             : item.get("preferredLanguage"),
             "account_enabled"                : bool(item.get("accountEnabled")),
             "user_type"                      : item.get("userType"),
-            "created_date_time"              : datetime.strptime(item.get("createdDateTime"), '%Y-%m-%dT%H:%M:%SZ').replace(tzinfo=timezone.utc) if item.get("createdDateTime") else pd.NaT,
-            "last_password_change_date_time" : datetime.strptime(item.get("lastPasswordChangeDateTime"), '%Y-%m-%dT%H:%M:%SZ').replace(tzinfo=timezone.utc) if item.get("lastPasswordChangeDateTime") else pd.NaT,
+            "created_date_time"              : datetime.strptime(item.get("createdDateTime"), '%Y-%m-%dT%H:%M:%SZ') if item.get("createdDateTime") else pd.NaT,
+            "last_password_change_date_time" : datetime.strptime(item.get("lastPasswordChangeDateTime"), '%Y-%m-%dT%H:%M:%SZ') if item.get("lastPasswordChangeDateTime") else pd.NaT,
         }
     
     def users(self):
@@ -69,7 +69,7 @@ class Source:
     def _signin(self,item):
         return {
             "user_principal_name" : item.get("userPrincipalName"),
-            "created_date_time"   : datetime.strptime(item.get("createdDateTime"), '%Y-%m-%dT%H:%M:%SZ').replace(tzinfo=timezone.utc) if item.get("createdDateTime") else pd.NaT,
+            "created_date_time"   : datetime.strptime(item.get("createdDateTime"), '%Y-%m-%dT%H:%M:%SZ') if item.get("createdDateTime") else pd.NaT,
         }
 
     def signin(self,days = 180):
@@ -87,7 +87,7 @@ class Source:
         return {
             "id"                    : item.get("id"),
             "activity_display_name" : item.get("activityDisplayName"),
-            "activity_date_time"    : datetime.strptime(item.get("activityDateTime").split('.')[0].replace('Z',''), '%Y-%m-%dT%H:%M:%S').replace(tzinfo=timezone.utc) if item.get("activityDateTime") else pd.NaT,
+            "activity_date_time"    : datetime.strptime(item.get("activityDateTime").split('.')[0].replace('Z',''), '%Y-%m-%dT%H:%M:%S') if item.get("activityDateTime") else pd.NaT,
             "user_principal_name"   : item.get("targetResources",[{}])[0].get("userPrincipalName"),
             "initiated_by"          : item.get("initiatedBy",{}).get("user",{}).get("userPrincipalName") if item.get("initiatedBy",{}).get("user") != None else item.get("initiatedBy",{}).get("app",{}).get("displayName") 
         }

@@ -142,7 +142,7 @@ class Source:
             "os_version"                    : item.get("os_version"),
             "platform_name"                 : item.get("platform_name"),
             "provision_status"              : item.get("provision_status"),
-            "reduced_functionality_mode"    : item.get("reduced_functionality_mode", False),
+            "reduced_functionality_mode"    : str(item.get("reduced_functionality_mode", "")).lower() not in ("no", "false", "", "none"),
             "serial_number"                 : item.get("serial_number"),
             "host_status"                   : item.get("status"),
             "system_manufacturer"           : item.get("system_manufacturer"),

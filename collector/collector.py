@@ -244,6 +244,12 @@ class UploadBigQuery:
             except Exception:
                 pass
 
+            # Coerce object columns to str so pyarrow can serialise them, preserving nulls
+            df = df.copy()
+            for col in df.columns:
+                if df[col].dtype == object:
+                    df[col] = df[col].where(df[col].isna(), df[col].astype(str))
+
             job_config = bigquery.LoadJobConfig(
                 write_disposition=bigquery.WriteDisposition.WRITE_APPEND,
                 schema=self._df_to_bq_schema(df),
@@ -263,7 +269,7 @@ class UploadBigQuery:
         for col, dtype in df.dtypes.items():
             dtype_str = str(dtype)
             if 'datetime' in dtype_str:
-                bq_type = 'TIMESTAMP'
+                bq_type = 'DATETIME'
             elif dtype_str in ('bool', 'boolean'):
                 bq_type = 'BOOLEAN'
             elif dtype_str in ('int64', 'Int64', 'int32', 'Int32'):
