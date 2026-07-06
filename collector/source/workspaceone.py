@@ -121,7 +121,7 @@ class Source:
             'model':                  item.get('model'),
             'operating_system':       item.get('operating_system'),
             'os_build_version':       item.get('os_build_version'),
-            'last_seen':              item.get('last_seen'),
+            'last_seen':              pd.to_datetime(item.get('last_seen'), utc=True, errors='coerce') if item.get('last_seen') else None,
             'last_enrolled_on':       item.get('last_enrolled_on'),
             'enrollment_status':      item.get('enrollment_status'),
             'compliance_status':      item.get('compliance_status'),

@@ -30,7 +30,7 @@ class Source:
         else:
             self.sf = None
 
-        self.salesforce('salesforce_fixed_asset__c','select id, project_resource__c, status__c, type__c, serial_number__c, model__c FROM fixed_asset__c',{ 'Id' : 'text', 'Project_Resource__c' : 'text', 'Status__c' : 'text', 'Type__c' : 'text', 'Serial_Number__c' : 'text', 'Model__c' : 'text'})
+        self.salesforce('salesforce_fixed_asset__c','select id, project_resource__c, possession__c, status__c, type__c, serial_number__c, model__c FROM fixed_asset__c',{ 'Id' : 'text', 'Project_Resource__c' : 'text', 'Possession__c' : 'text','Status__c' : 'text', 'Type__c' : 'text', 'Serial_Number__c' : 'text', 'Model__c' : 'text'})
         self.salesforce('salesforce_krow__location__c','select id,name from krow__location__c', { 'Id' : 'text','Name' : 'text'})
         self.salesforce('salesforce_krow__project_resources__c','select id,name,user_email__c,employment_end_date__c,legal_name__c,domain__c,employment_start_date__c,krow__team__c,krow__active__c,krow__location__c from krow__project_resources__c',{"Id": "text","Name": "text","User_Email__c": "text","Employment_End_Date__c": "date","Legal_Name__c": "text","Domain__c": "text","Employment_Start_Date__c": "date","Krow__Team__c": "text","Krow__Active__c": "Boolean","Krow__Location__c": "text"})
         self.salesforce('salesforce_domain__c','select id,name,active__c from domain__c',{ 'Id' : 'text','Name' : 'text','Active__c' : 'boolean'})
